@@ -12,14 +12,23 @@ class Database:
             'database': Config.MYSQL_DB,
             'port': Config.MYSQL_PORT,
             'charset': 'utf8mb4',
-            'cursorclass': pymysql.cursors.DictCursor
+            'cursorclass': pymysql.cursors.DictCursor,
+            'connect_timeout': 10,  # TIMEOUT de conexión
+            'read_timeout': 10,     # TIMEOUT de lectura
+            'write_timeout': 10     # TIMEOUT de escritura
         }
         
         # AGREGAR SSL SOLO EN PRODUCCIÓN (Railway)
-        if os.getenv('RAILWAY_ENV'):
+        if os.getenv('RAILWAY_ENV') or Config.MYSQL_HOST != 'localhost':
             connection_config['ssl'] = {'ca': '/etc/ssl/cert.pem'}
+            print("🔐 Usando conexión SSL para MySQL")
         
-        return pymysql.connect(**connection_config)
+        try:
+            return pymysql.connect(**connection_config)
+        except pymysql.err.OperationalError as e:
+            print(f"❌ Error de conexión MySQL: {e}")
+            print(f"🔍 Intentando conectar a: {Config.MYSQL_HOST}:{Config.MYSQL_PORT}")
+            raise e
 
     def execute_query(self, query, params=None, fetch=False, fetch_one=False):
         """Ejecutar consulta en la base de datos"""
@@ -41,6 +50,7 @@ class Database:
                 return result
         except Exception as e:
             connection.rollback()
+            print(f"❌ Error en consulta MySQL: {e}")
             raise e
         finally:
             connection.close()
