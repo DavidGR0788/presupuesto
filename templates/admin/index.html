@@ -1,0 +1,363 @@
+{% extends "base.html" %}
+
+{% block title %}Administración - Presupuesto Personal{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-cog me-2"></i>
+        Panel de Administración
+    </h1>
+</div>
+
+<!-- Tarjetas de resumen -->
+<div class="row mb-4">
+    <div class="col-md-4 mb-3">
+        <div class="card admin-card">
+            <div class="card-body">
+                <h6 class="card-title">Total Usuarios</h6>
+                <h3 class="mb-0">{{ total_usuarios }}</h3>
+                <small>Usuarios registrados</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h6 class="card-title">Ingresos Totales</h6>
+                <h3 class="mb-0">${{ "{:,.0f}".format(ingresos_totales) }}</h3>
+                <small>En el sistema</small>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4 mb-3">
+        <div class="card bg-danger text-white">
+            <div class="card-body">
+                <h6 class="card-title">Gastos Totales</h6>
+                <h3 class="mb-0">${{ "{:,.0f}".format(gastos_totales) }}</h3>
+                <small>En el sistema</small>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Lista de Usuarios -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-users me-2"></i>
+                    Gestión de Usuarios
+                </h5>
+                <div>
+                    <span class="badge bg-primary me-2">
+                        {{ usuarios|length }} usuario{% if usuarios|length != 1 %}s{% endif %}
+                    </span>
+                    <small class="text-muted">Los usuarios se registran automáticamente</small>
+                </div>
+            </div>
+            <div class="card-body p-0">
+                {% if usuarios %}
+                <div class="table-responsive" style="max-height: 400px; overflow-y: auto;">
+                    <table class="table table-hover mb-0">
+                        <thead class="sticky-top" style="background-color: #f8f9fa;">
+                            <tr>
+                                <th style="position: sticky; top: 0; background-color: #f8f9fa;">ID</th>
+                                <th style="position: sticky; top: 0; background-color: #f8f9fa;">Nombre</th>
+                                <th style="position: sticky; top: 0; background-color: #f8f9fa;">Email</th>
+                                <th style="position: sticky; top: 0; background-color: #f8f9fa;">Rol</th>
+                                <th style="position: sticky; top: 0; background-color: #f8f9fa;">Estado</th>
+                                <th style="position: sticky; top: 0; background-color: #f8f9fa;">Fecha Registro</th>
+                                <th style="position: sticky; top: 0; background-color: #f8f9fa;">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for usuario in usuarios %}
+                            <tr>
+                                <td><strong>#{{ usuario.id }}</strong></td>
+                                <td>
+                                    <strong>{{ usuario.nombre }}</strong>
+                                    {% if usuario.id == session.user_id %}
+                                    <span class="badge bg-info ms-1">Tú</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ usuario.email }}</td>
+                                <td>
+                                    {% if usuario.rol_id == 1 %}
+                                    <span class="badge bg-warning">Administrador</span>
+                                    {% else %}
+                                    <span class="badge bg-secondary">Usuario</span>
+                                    {% endif %}
+                                </td>
+                                <td>
+                                    {% if usuario.activo == 1 %}
+                                    <span class="badge bg-success">Activo</span>
+                                    {% else %}
+                                    <span class="badge bg-danger">Inactivo</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ usuario.fecha_creacion }}</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <!-- Botón Editar - Ahora abre modal -->
+                                        <button class="btn btn-outline-primary" 
+                                                title="Editar"
+                                                onclick="abrirModalEditar({{ usuario.id }}, '{{ usuario.nombre }}', '{{ usuario.email }}', {{ usuario.rol_id }}, {{ usuario.activo }})">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        
+                                        <!-- Botón Eliminar -->
+                                        {% if usuario.id != session.user_id %}
+                                        <button class="btn btn-outline-danger" 
+                                                title="Eliminar"
+                                                onclick="abrirModalEliminar({{ usuario.id }}, '{{ usuario.nombre }}')">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        {% else %}
+                                        <button class="btn btn-outline-secondary" disabled title="No puedes eliminarte a ti mismo">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-users fa-3x mb-3"></i>
+                    <p>No hay usuarios registrados en el sistema</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contenido principal -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-tachometer-alt me-2"></i>
+                    Resumen del Sistema
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Panel de Administración</strong> - Aquí podrás gestionar usuarios existentes, ver estadísticas del sistema y configurar opciones avanzadas.
+                </div>
+                
+                <div class="row text-center">
+                    <div class="col-md-6 mb-3">
+                        <div class="p-3 border rounded">
+                            <i class="fas fa-chart-bar fa-2x text-success mb-2"></i>
+                            <h5>Estadísticas</h5>
+                            <p class="text-muted">Ver reportes y análisis del sistema</p>
+                            <a href="{{ url_for('admin.estadisticas') }}" class="btn btn-outline-success btn-sm">
+                                Ver Estadísticas
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="p-3 border rounded">
+                            <i class="fas fa-cogs fa-2x text-warning mb-2"></i>
+                            <h5>Configuración</h5>
+                            <p class="text-muted">Configurar opciones del sistema</p>
+                            <button class="btn btn-outline-warning btn-sm" disabled>
+                                Próximamente
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Editar Usuario -->
+<div class="modal fade" id="modalEditarUsuario" tabindex="-1" aria-labelledby="modalEditarUsuarioLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalEditarUsuarioLabel">
+                    <i class="fas fa-edit me-2"></i>
+                    Editar Usuario
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form id="formEditarUsuario" method="POST">
+                <div class="modal-body">
+                    <input type="hidden" id="editar_user_id" name="user_id">
+                    
+                    <div class="mb-3">
+                        <label for="editar_nombre" class="form-label">Nombre</label>
+                        <input type="text" class="form-control" id="editar_nombre" name="nombre" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="editar_email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="editar_email" name="email" required>
+                    </div>
+
+                    <!-- Campo de contraseña -->
+                    <div class="mb-3">
+                        <label for="editar_password" class="form-label">Nueva Contraseña</label>
+                        <input type="password" class="form-control" id="editar_password" name="password" placeholder="Dejar en blanco para mantener la contraseña actual">
+                        <div class="form-text">
+                            Solo completa este campo si deseas cambiar la contraseña del usuario.
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="editar_rol" class="form-label">Rol</label>
+                        <select class="form-select" id="editar_rol" name="rol_id" required>
+                            <option value="1">Administrador</option>
+                            <option value="2">Usuario</option>
+                        </select>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="editar_activo" class="form-label">Estado</label>
+                        <select class="form-select" id="editar_activo" name="activo" required>
+                            <option value="1">Activo</option>
+                            <option value="0">Inactivo</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i>
+                        Cancelar
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-save me-1"></i>
+                        Guardar Cambios
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Confirmar Eliminación -->
+<div class="modal fade" id="modalEliminarUsuario" tabindex="-1" aria-labelledby="modalEliminarUsuarioLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title text-danger" id="modalEliminarUsuarioLabel">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Confirmar Eliminación
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center mb-4">
+                    <i class="fas fa-trash-alt fa-3x text-danger mb-3"></i>
+                    <h5>¿Estás seguro de que quieres eliminar este usuario?</h5>
+                    <p class="text-muted">
+                        Estás a punto de eliminar al usuario: 
+                        <strong id="usuario_eliminar_nombre" class="text-danger"></strong>
+                    </p>
+                    <div class="alert alert-warning">
+                        <i class="fas fa-exclamation-circle me-2"></i>
+                        <strong>Advertencia:</strong> Esta acción no se puede deshacer y se eliminarán todos los datos asociados al usuario.
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>
+                    Cancelar
+                </button>
+                <a id="btnConfirmarEliminar" href="#" class="btn btn-danger">
+                    <i class="fas fa-trash me-1"></i>
+                    Sí, Eliminar Usuario
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script>
+function abrirModalEditar(userId, nombre, email, rol, activo) {
+    // Llenar el formulario con los datos del usuario
+    document.getElementById('editar_user_id').value = userId;
+    document.getElementById('editar_nombre').value = nombre;
+    document.getElementById('editar_email').value = email;
+    document.getElementById('editar_rol').value = rol;
+    document.getElementById('editar_activo').value = activo;
+    
+    // Limpiar el campo de contraseña cada vez que se abre el modal
+    document.getElementById('editar_password').value = '';
+    
+    // Configurar el action del formulario
+    document.getElementById('formEditarUsuario').action = "{{ url_for('admin.editar_usuario', user_id=0) }}".replace('/0', '/' + userId);
+    
+    // Mostrar el modal
+    var modal = new bootstrap.Modal(document.getElementById('modalEditarUsuario'));
+    modal.show();
+}
+
+function abrirModalEliminar(userId, nombre) {
+    // Llenar el modal con los datos del usuario
+    document.getElementById('usuario_eliminar_nombre').textContent = nombre;
+    
+    // Configurar el enlace de eliminación
+    var eliminarUrl = "{{ url_for('admin.eliminar_usuario', user_id=0) }}".replace('/0', '/' + userId);
+    document.getElementById('btnConfirmarEliminar').href = eliminarUrl;
+    
+    // Mostrar el modal
+    var modal = new bootstrap.Modal(document.getElementById('modalEliminarUsuario'));
+    modal.show();
+}
+
+// Manejar el envío del formulario
+document.getElementById('formEditarUsuario').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Mostrar loading en el botón
+    const submitBtn = this.querySelector('button[type="submit"]');
+    const originalText = submitBtn.innerHTML;
+    submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-1"></i> Guardando...';
+    submitBtn.disabled = true;
+    
+    // Enviar el formulario
+    fetch(this.action, {
+        method: 'POST',
+        body: new FormData(this)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            // Cerrar el modal y recargar la página
+            var modal = bootstrap.Modal.getInstance(document.getElementById('modalEditarUsuario'));
+            modal.hide();
+            // Pequeño delay para que se vea el mensaje de éxito
+            setTimeout(() => {
+                location.reload();
+            }, 500);
+        } else {
+            alert('Error al actualizar el usuario: ' + (data.error || 'Error desconocido'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('Error de conexión al actualizar el usuario');
+    })
+    .finally(() => {
+        // Restaurar botón
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
+    });
+});
+</script>
+{% endblock %}

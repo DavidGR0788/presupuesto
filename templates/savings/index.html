@@ -1,0 +1,528 @@
+{% extends "base.html" %}
+
+{% block title %}Ahorros - Presupuesto Personal{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <h1 class="h2">
+        <i class="fas fa-piggy-bank me-2"></i>
+        Mis Ahorros
+    </h1>
+</div>
+
+<!-- Resumen de Ahorros -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h6 class="card-title">Total Ahorrado</h6>
+                <h3 class="mb-0">${{ "{:,.0f}".format(summary.total_ahorrado) if summary and summary.total_ahorrado else 0 }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h6 class="card-title">Meta Total</h6>
+                <h3 class="mb-0">${{ "{:,.0f}".format(summary.total_meta) if summary and summary.total_meta else 0 }}</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-info text-white">
+            <div class="card-body">
+                <h6 class="card-title">Progreso Total</h6>
+                <h3 class="mb-0">{{ summary.porcentaje_total if summary and summary.porcentaje_total else 0 }}%</h3>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <h6 class="card-title">Metas Activas</h6>
+                <h3 class="mb-0">{{ summary.total_metas if summary and summary.total_metas else 0 }}</h3>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Formulario para agregar metas de ahorro -->
+    <div class="col-lg-4 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    Nueva Meta de Ahorro
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('savings.add') }}" onsubmit="limpiarFormatosAntesDeEnviar()">
+                    <div class="mb-3">
+                        <label for="concepto" class="form-label">Concepto *</label>
+                        <input type="text" class="form-control" id="concepto" name="concepto" 
+                               placeholder="Ej: Viaje a la playa, Nuevo carro..." required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="meta_total" class="form-label">Meta Total *</label>
+                        <input type="text" class="form-control formato-monto" id="meta_total" name="meta_total" 
+                               placeholder="0.00" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="fecha_objetivo" class="form-label">Fecha Objetivo</label>
+                        <input type="date" class="form-control" id="fecha_objetivo" name="fecha_objetivo">
+                        <div class="form-text">Opcional. Si no especificas, se usará 3 meses desde hoy.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="descripcion" name="descripcion" 
+                                  rows="3" placeholder="Detalles de tu meta..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-save me-2"></i>
+                        Crear Meta
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de metas de ahorro -->
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-list me-2"></i>
+                    Mis Metas de Ahorro
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if savings %}
+                <div class="row">
+                    {% for saving in savings %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100 
+                            {% if saving.completado %} 
+                                border-success
+                            {% elif saving.dias_restantes is defined and saving.dias_restantes < 0 %} 
+                                border-danger
+                            {% else %} 
+                                border-primary
+                            {% endif %}">
+                            
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <h5 class="card-title">{{ saving.concepto }}</h5>
+                                    <span class="badge 
+                                        {% if saving.completado %} 
+                                            bg-success
+                                        {% elif saving.dias_restantes is defined and saving.dias_restantes < 0 %} 
+                                            bg-danger
+                                        {% else %} 
+                                            bg-primary
+                                        {% endif %}">
+                                        
+                                        {% if saving.completado %}
+                                            Completado
+                                        {% elif saving.dias_restantes is defined and saving.dias_restantes < 0 %}
+                                            Vencido
+                                        {% else %}
+                                            Activo
+                                        {% endif %}
+                                    </span>
+                                </div>
+                                
+                                {% if saving.descripcion %}
+                                <p class="card-text text-muted small">{{ saving.descripcion }}</p>
+                                {% endif %}
+                                
+                                <div class="mb-3">
+                                    <div class="d-flex justify-content-between mb-1">
+                                        <small>Progreso: {{ saving.porcentaje_completado if saving.porcentaje_completado else 0 }}%</small>
+                                        <small>${{ "{:,.0f}".format(saving.ahorrado_actual if saving.ahorrado_actual else 0) }} / ${{ "{:,.0f}".format(saving.meta_total if saving.meta_total else 0) }}</small>
+                                    </div>
+                                    <div class="progress" style="height: 10px;">
+                                        <div class="progress-bar 
+                                            {% if saving.porcentaje_completado and saving.porcentaje_completado >= 100 %} 
+                                                bg-success
+                                            {% elif saving.dias_restantes is defined and saving.dias_restantes < 0 %} 
+                                                bg-danger
+                                            {% else %} 
+                                                bg-primary
+                                            {% endif %}" 
+                                            
+                                            role="progressbar" 
+                                            style="width: {{ saving.porcentaje_completado if saving.porcentaje_completado else 0 }}%; max-width: 100%;"
+                                            aria-valuenow="{{ saving.porcentaje_completado if saving.porcentaje_completado else 0 }}" 
+                                            aria-valuemin="0" 
+                                            aria-valuemax="100">
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="row text-center small">
+                                    <div class="col-6">
+                                        <strong>Inicio</strong><br>
+                                        {% if saving.fecha_inicio %}
+                                            {{ saving.fecha_formateada_inicio if saving.fecha_formateada_inicio else 'N/A' }}
+                                        {% else %}
+                                            N/A
+                                        {% endif %}
+                                    </div>
+                                    <div class="col-6">
+                                        <strong>Objetivo</strong><br>
+                                        {% if saving.fecha_objetivo %}
+                                            {{ saving.fecha_formateada_objetivo if saving.fecha_formateada_objetivo else 'Sin fecha' }}
+                                        {% else %}
+                                            Sin fecha
+                                        {% endif %}
+                                    </div>
+                                </div>
+                                
+                                {% if saving.dias_restantes is defined %}
+                                <div class="text-center mt-2">
+                                    <small class="text-muted">
+                                        {% if saving.dias_restantes > 0 %}
+                                            {{ saving.dias_restantes }} días restantes
+                                        {% elif saving.dias_restantes < 0 %}
+                                            <span class="text-danger">{{ saving.dias_restantes * -1 }} días vencidos</span>
+                                        {% else %}
+                                            ¡Hoy es el día!
+                                        {% endif %}
+                                    </small>
+                                </div>
+                                {% endif %}
+                                
+                                <div class="mt-3">
+                                    {% if not saving.completado %}
+                                    <form class="d-flex mb-2 add-money-form" data-saving-id="{{ saving.id }}" onsubmit="limpiarFormatosAntesDeEnviar()">
+                                        <input type="text" class="form-control form-control-sm me-2 formato-monto" 
+                                               placeholder="Monto" required>
+                                        <button type="submit" class="btn btn-success btn-sm">
+                                            <i class="fas fa-plus"></i>
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                    
+                                    <div class="btn-group w-100">
+                                        <button class="btn btn-outline-primary btn-sm edit-saving" 
+                                                data-saving-id="{{ saving.id }}"
+                                                data-concepto="{{ saving.concepto }}"
+                                                data-meta-total="{{ saving.meta_total if saving.meta_total else 0 }}"
+                                                data-fecha-objetivo="{{ saving.fecha_objetivo_iso if saving.fecha_objetivo_iso else '' }}"
+                                                data-descripcion="{{ saving.descripcion or '' }}">
+                                            <i class="fas fa-edit"></i>
+                                        </button>
+                                        <button class="btn btn-outline-danger btn-sm delete-saving" 
+                                                data-saving-id="{{ saving.id }}">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-piggy-bank fa-3x mb-3"></i>
+                    <p>No tienes metas de ahorro activas</p>
+                    <p class="small">Crea tu primera meta usando el formulario a la izquierda</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para editar meta de ahorro -->
+<div class="modal fade" id="editSavingModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Meta de Ahorro</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form id="editSavingForm" onsubmit="limpiarFormatosAntesDeEnviar()">
+                    <input type="hidden" id="edit_saving_id">
+                    <div class="mb-3">
+                        <label for="edit_concepto" class="form-label">Concepto *</label>
+                        <input type="text" class="form-control" id="edit_concepto" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_meta_total" class="form-label">Meta Total *</label>
+                        <input type="text" class="form-control formato-monto" id="edit_meta_total" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_fecha_objetivo" class="form-label">Fecha Objetivo</label>
+                        <input type="date" class="form-control" id="edit_fecha_objetivo">
+                    </div>
+                    <div class="mb-3">
+                        <label for="edit_descripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="edit_descripcion" rows="3"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="saveSavingChanges">Guardar Cambios</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+// Función para mostrar alerta bonita
+function mostrarAlerta(mensaje, tipo = 'danger') {
+    // Crear elemento de alerta
+    const alertDiv = document.createElement('div');
+    alertDiv.className = `alert alert-${tipo} alert-dismissible fade show`;
+    alertDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 1050; min-width: 300px;';
+    
+    // Icono según el tipo de alerta
+    let icono = 'exclamation-circle';
+    if (tipo === 'success') icono = 'check-circle';
+    if (tipo === 'warning') icono = 'exclamation-triangle';
+    
+    alertDiv.innerHTML = `
+        <i class="fas fa-${icono} me-2"></i>
+        ${mensaje}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    
+    // Agregar al body
+    document.body.appendChild(alertDiv);
+    
+    // Auto-eliminar después de 5 segundos
+    setTimeout(() => {
+        if (alertDiv.parentNode) {
+            alertDiv.remove();
+        }
+    }, 5000);
+}
+
+// Función para mejorar mensajes de error del servidor
+function mejorarMensajeError(error) {
+    if (!error) return 'Error desconocido';
+    
+    // Si el error contiene información sobre superar la meta
+    if (error.includes('No puedes ahorrar más de tu meta') || 
+        error.includes('supera la meta') ||
+        error.includes('más de tu meta') ||
+        error.includes('supere la meta') ||
+        error.includes('completar los')) {
+        return 'No puedes ingresar más dinero del necesario para completar tu meta. Revisa el monto que intentas agregar.';
+    }
+    
+    // Si el error contiene información sobre saldo
+    if (error.includes('saldo') || error.includes('disponible')) {
+        return 'No tienes suficiente saldo disponible para realizar esta operación.';
+    }
+    
+    // Si el error contiene información sobre presupuesto
+    if (error.includes('presupuesto')) {
+        return 'Has superado el presupuesto asignado para esta categoría.';
+    }
+    
+    // Si el error contiene información sobre monto menor
+    if (error.includes('menor') || error.includes('ahorrado actual')) {
+        return 'No puedes establecer una meta menor a lo que ya has ahorrado.';
+    }
+    
+    const mensajesMejorados = {
+        'No puedes ahorrar más de tu meta': 'No puedes ingresar más dinero del necesario para completar tu meta actual.',
+        'No puedes gastar más de tu saldo disponible': 'No tienes suficiente saldo disponible para esta operación',
+        'No puedes gastar más del presupuesto asignado': 'Has superado el presupuesto asignado para esta categoría',
+        'La nueva meta no puede ser menor a lo ya ahorrado': 'No puedes reducir la meta por debajo de lo que ya has ahorrado',
+        'Monto inválido': 'Por favor ingresa un monto válido',
+        'Meta total inválida': 'Por favor ingresa una meta total válida',
+        'Campos obligatorios faltantes': 'Por favor completa todos los campos obligatorios',
+        'El monto debe ser mayor a 0': 'El monto debe ser mayor a cero',
+        'La meta total debe ser mayor a 0': 'La meta total debe ser mayor a cero'
+    };
+    
+    return mensajesMejorados[error] || error;
+}
+
+// Función para limpiar formatos antes de enviar el formulario
+function limpiarFormatosAntesDeEnviar() {
+    document.querySelectorAll('input.formato-monto').forEach(input => {
+        input.value = input.value.replace(/\./g, '');
+    });
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    let currentSavingId = null;
+    
+    // Agregar dinero a meta de ahorro
+    document.querySelectorAll('.add-money-form').forEach(form => {
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const savingId = this.getAttribute('data-saving-id');
+            const montoInput = this.querySelector('input[type="text"]');
+            const monto = parseFloat(montoInput.value.replace(/\./g, ''));
+            
+            if (!monto || monto <= 0) {
+                mostrarAlerta('Por favor ingresa un monto válido', 'warning');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('monto', monto);
+            
+            fetch(`/savings/add-money/${savingId}`, {
+                method: 'POST',
+                body: formData,
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(errorData => {
+                        throw new Error(errorData.error || 'Error en el servidor');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    mostrarAlerta('¡Dinero agregado exitosamente!', 'success');
+                    setTimeout(() => location.reload(), 1000);
+                } else {
+                    const mensajeMejorado = mejorarMensajeError(data.error);
+                    mostrarAlerta(mensajeMejorado, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                const mensajeMejorado = mejorarMensajeError(error.message);
+                mostrarAlerta(mensajeMejorado, 'danger');
+            });
+        });
+    });
+    
+    // Editar meta de ahorro
+    document.querySelectorAll('.edit-saving').forEach(button => {
+        button.addEventListener('click', function() {
+            currentSavingId = this.getAttribute('data-saving-id');
+            const concepto = this.getAttribute('data-concepto');
+            const metaTotal = this.getAttribute('data-meta-total');
+            const fechaObjetivo = this.getAttribute('data-fecha-objetivo');
+            const descripcion = this.getAttribute('data-descripcion');
+            
+            document.getElementById('edit_concepto').value = concepto || '';
+            document.getElementById('edit_meta_total').value = metaTotal || '';
+            document.getElementById('edit_fecha_objetivo').value = fechaObjetivo || '';
+            document.getElementById('edit_descripcion').value = descripcion || '';
+            document.getElementById('edit_saving_id').value = currentSavingId;
+            
+            const modal = new bootstrap.Modal(document.getElementById('editSavingModal'));
+            modal.show();
+        });
+    });
+    
+    // Guardar cambios de meta de ahorro
+    document.getElementById('saveSavingChanges').addEventListener('click', function() {
+        const savingId = document.getElementById('edit_saving_id').value;
+        const concepto = document.getElementById('edit_concepto').value.trim();
+        const metaTotal = document.getElementById('edit_meta_total').value;
+        const fechaObjetivo = document.getElementById('edit_fecha_objetivo').value;
+        const descripcion = document.getElementById('edit_descripcion').value.trim();
+        
+        if (!concepto || !metaTotal) {
+            mostrarAlerta('Por favor completa los campos obligatorios', 'warning');
+            return;
+        }
+        
+        if (parseFloat(metaTotal.replace(/\./g, '')) <= 0) {
+            mostrarAlerta('La meta total debe ser mayor a 0', 'warning');
+            return;
+        }
+        
+        const formData = new FormData();
+        formData.append('concepto', concepto);
+        formData.append('meta_total', metaTotal.replace(/\./g, ''));
+        formData.append('fecha_objetivo', fechaObjetivo);
+        formData.append('descripcion', descripcion);
+        
+        fetch(`/savings/update/${savingId}`, {
+            method: 'POST',
+            body: formData,
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => {
+            if (!response.ok) {
+                return response.json().then(errorData => {
+                    throw new Error(errorData.error || 'Error en el servidor');
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.success) {
+                mostrarAlerta('¡Meta actualizada exitosamente!', 'success');
+                setTimeout(() => location.reload(), 1000);
+            } else {
+                const mensajeMejorado = mejorarMensajeError(data.error);
+                mostrarAlerta(mensajeMejorado, 'danger');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            const mensajeMejorado = mejorarMensajeError(error.message);
+            mostrarAlerta(mensajeMejorado, 'danger');
+        });
+    });
+    
+    // Eliminar meta de ahorro
+    document.querySelectorAll('.delete-saving').forEach(button => {
+        button.addEventListener('click', function() {
+            const savingId = this.getAttribute('data-saving-id');
+            
+            if (confirm('¿Estás seguro de que quieres eliminar esta meta de ahorro? Esta acción no se puede deshacer.')) {
+                fetch(`/savings/delete/${savingId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(errorData => {
+                            throw new Error(errorData.error || 'Error en el servidor');
+                        });
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    if (data.success) {
+                        mostrarAlerta('¡Meta eliminada exitosamente!', 'success');
+                        setTimeout(() => location.reload(), 1000);
+                    } else {
+                        const mensajeMejorado = mejorarMensajeError(data.error);
+                        mostrarAlerta(mensajeMejorado, 'danger');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    const mensajeMejorado = mejorarMensajeError(error.message);
+                    mostrarAlerta(mensajeMejorado, 'danger');
+                });
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
