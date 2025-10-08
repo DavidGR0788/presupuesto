@@ -12,7 +12,7 @@ class Config:
     MYSQL_DB = os.getenv('MYSQLDATABASE', 'presupuesto_db')  # Railway usa MYSQLDATABASE
     MYSQL_PORT = int(os.getenv('MYSQLPORT', 3306))    # Railway usa MYSQLPORT (sin guión)
     
-    SECRET_KEY = os.getenv('SECRET_KEY', 'Unpocodetodo1007$')
+    SECRET_KEY = os.getenv('SECRET_KEY', 'clave-super-secreta-muy-larga-2025-presupuesto-app')
     
     # Configuración de sesión - NO permanente (se cierra al cerrar navegador)
     PERMANENT_SESSION_LIFETIME = timedelta(minutes=5)
