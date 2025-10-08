@@ -6,11 +6,11 @@ class Database:
     def get_connection(self):
         """Obtener conexión a la base de datos"""
         connection_config = {
-            'host': Config.MYSQL_HOST,
-            'user': Config.MYSQL_USER,
-            'password': Config.MYSQL_PASSWORD,
-            'database': Config.MYSQL_DB,
-            'port': Config.MYSQL_PORT,
+            'host': Config.MYSQLHOST,
+            'user': Config.MYSQLUSER,
+            'password': Config.MYSQLPASSWORD,
+            'database': Config.MYSQLDB,
+            'port': Config.MYSQLPORT,
             'charset': 'utf8mb4',
             'cursorclass': pymysql.cursors.DictCursor,
             'connect_timeout': 10,
