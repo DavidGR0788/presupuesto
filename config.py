@@ -5,14 +5,29 @@ from datetime import timedelta
 load_dotenv()
 
 class Config:
-    # Configuración para Railway - usa los nombres EXACTOS de Railway
-    MYSQL_HOST = os.getenv('MYSQLHOST', '127.0.0.1')  # Railway usa MYSQLHOST (sin guión)
-    MYSQL_USER = os.getenv('MYSQLUSER', 'root')       # Railway usa MYSQLUSER (sin guión)
-    MYSQL_PASSWORD = os.getenv('MYSQLPASSWORD', '')   # Railway usa MYSQLPASSWORD (sin guión)
-    MYSQL_DB = os.getenv('MYSQLDATABASE', 'presupuesto_db')  # Railway usa MYSQLDATABASE
-    MYSQL_PORT = int(os.getenv('MYSQLPORT', 3306))    # Railway usa MYSQLPORT (sin guión)
+    # Configuración para Railway - SIN valores por defecto locales
+    MYSQL_HOST = os.getenv('MYSQLHOST')  # Railway proveerá este valor
+    MYSQL_USER = os.getenv('MYSQLUSER')  # Railway proveerá este valor
+    MYSQL_PASSWORD = os.getenv('MYSQLPASSWORD')  # Railway proveerá este valor
+    MYSQL_DB = os.getenv('MYSQLDATABASE')  # Railway proveerá este valor
+    MYSQL_PORT = int(os.getenv('MYSQLPORT', 3306))  # Solo puerto tiene valor por defecto
     
     SECRET_KEY = os.getenv('SECRET_KEY', 'presupuesto_secret_key_2025')
     
     # Configuración de sesión - NO permanente (se cierra al cerrar navegador)
     PERMANENT_SESSION_LIFETIME = timedelta(minutes=5)
+    
+    # Método de debug para verificar configuración
+    @classmethod
+    def print_debug(cls):
+        print("=== 🚨 CONFIG DEBUG ===")
+        print(f"MYSQL_HOST: '{cls.MYSQL_HOST}'")
+        print(f"MYSQL_USER: '{cls.MYSQL_USER}'")
+        print(f"MYSQL_DB: '{cls.MYSQL_DB}'")
+        print(f"MYSQL_PORT: {cls.MYSQL_PORT}")
+        print(f"MYSQL_PASSWORD length: {len(cls.MYSQL_PASSWORD or '')}")
+        print("=== 🚨 CONFIG DEBUG END ===")
+
+# Debug inicial
+if __name__ == "__main__":
+    Config.print_debug()
