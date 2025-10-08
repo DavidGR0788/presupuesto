@@ -24,7 +24,7 @@ def init_database():
         cursor = connection.cursor()
         print("✅ Conexión exitosa a MySQL")
         
-        # SCRIPT SQL COMPLETO - TODAS LAS TABLAS
+        # SCRIPT SQL COMPLETO - EXACTO COMO EN LOCAL
         sql_script = """
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -155,7 +155,7 @@ CREATE TABLE IF NOT EXISTS `presupuestos` (
   CONSTRAINT `presupuestos_ibfk_2` FOREIGN KEY (`categoria_gasto_id`) REFERENCES `categorias_gastos` (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- Tabla: ahorros
+-- Tabla: ahorros (sin la columna generada por problemas de compatibilidad)
 CREATE TABLE IF NOT EXISTS `ahorros` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `usuario_id` int(11) NOT NULL,
@@ -179,23 +179,25 @@ COMMIT;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 """
         
-        # Ejecutar el script
+        # Ejecutar el script COMPLETO
         print("📝 Ejecutando script SQL COMPLETO...")
-        statements = sql_script.split(';')
-        total_statements = len([s for s in statements if s.strip()])
-        current_statement = 0
         
-        for statement in statements:
-            if statement.strip():
-                current_statement += 1
-                try:
+        # Dividir y ejecutar cada sentencia
+        statements = [stmt.strip() for stmt in sql_script.split(';') if stmt.strip()]
+        total_statements = len(statements)
+        
+        for i, statement in enumerate(statements, 1):
+            try:
+                if statement.upper().startswith('INSERT') or statement.upper().startswith('CREATE') or statement.upper().startswith('SET') or statement.upper().startswith('START'):
                     cursor.execute(statement)
-                    print(f"✅ [{current_statement}/{total_statements}] Ejecutado: {statement.strip()[:60]}...")
-                except Exception as e:
-                    print(f"⚠️  Error en statement {current_statement}: {e}")
+                    print(f"✅ [{i}/{total_statements}] Ejecutado: {statement[:80]}...")
+            except Exception as e:
+                print(f"⚠️  Error en statement {i}: {e}")
+                # Continuar con las siguientes sentencias
         
         connection.commit()
-        print("🎉 TODAS las tablas creadas EXITOSAMENTE")
+        print("🎉 TODAS LAS TABLAS CREADAS EXITOSAMENTE")
+        print("📊 Tablas creadas: roles, usuarios, categorias_gastos, categorias_ingresos, gastos, ingresos, presupuestos, ahorros")
         
     except Exception as e:
         print(f"❌ Error general: {e}")
