@@ -25,25 +25,31 @@ def create_app():
     
     print("=== 🚨 CONFIGURACIÓN RAILWAY - FIN ===")
     
-    # ✅ INICIALIZACIÓN AUTOMÁTICA DE BASE DE DATOS
-    print("=== 🗄️ VERIFICANDO BASE DE DATOS ===")
+    # ✅ INICIALIZACIÓN AUTOMÁTICA DE BASE DE DATOS - FORZADA
+    print("=== 🗄️ INICIALIZACIÓN FORZADA DE BASE DE DATOS ===")
     try:
-        # Intentar una consulta simple para ver si las tablas existen
-        from utils.database import Database
-        db = Database()
-        db.execute_query("SELECT 1 FROM usuarios LIMIT 1")
-        print("✅ Tablas ya existen")
+        from init_database import init_database
+        print("🔧 Ejecutando script de inicialización...")
+        init_database()
+        print("🎉 Base de datos inicializada exitosamente")
     except Exception as e:
-        if "doesn't exist" in str(e):
-            print("📦 Tablas no existen, ejecutando inicialización...")
+        print(f"⚠️ Error en inicialización: {e}")
+        print("🔧 Intentando verificar si las tablas ya existen...")
+        try:
+            from utils.database import Database
+            db = Database()
+            db.execute_query("SELECT 1 FROM usuarios LIMIT 1")
+            print("✅ Tablas ya existen")
+        except Exception as db_error:
+            print(f"❌ Error crítico: Las tablas no existen y no se pueden crear: {db_error}")
+            # Forzar recreación de tablas
             try:
+                print("🔄 Reintentando inicialización...")
                 from init_database import init_database
                 init_database()
-                print("🎉 Base de datos inicializada exitosamente")
-            except Exception as init_error:
-                print(f"❌ Error en inicialización: {init_error}")
-        else:
-            print(f"⚠️ Otro error: {e}")
+                print("🎉 Base de datos inicializada en segundo intento")
+            except Exception as retry_error:
+                print(f"💥 ERROR FATAL: No se pudo inicializar la base de datos: {retry_error}")
     
     app = Flask(__name__, 
                 template_folder='templates',

@@ -12,14 +12,16 @@ def init_database():
         'password': os.getenv('MYSQLPASSWORD'),
         'database': os.getenv('MYSQLDATABASE'),
         'port': int(os.getenv('MYSQLPORT', 3306)),
-        'charset': 'utf8mb4'
+        'charset': 'utf8mb4',
+        'connect_timeout': 30,
+        'autocommit': True
     }
     
     print(f"Conectando a: {db_config['host']}:{db_config['port']}")
     print(f"Base de datos: {db_config['database']}")
     
     try:
-        # Conectar a MySQL
+        # Conectar a MySQL con configuración robusta
         connection = pymysql.connect(**db_config)
         cursor = connection.cursor()
         print("✅ Conexión exitosa a MySQL")
@@ -188,9 +190,9 @@ COMMIT;
         
         for i, statement in enumerate(statements, 1):
             try:
-                if statement.upper().startswith('INSERT') or statement.upper().startswith('CREATE') or statement.upper().startswith('SET') or statement.upper().startswith('START'):
+                if statement and len(statement) > 5:  # Solo ejecutar sentencias no vacías
                     cursor.execute(statement)
-                    print(f"✅ [{i}/{total_statements}] Ejecutado: {statement[:80]}...")
+                    print(f"✅ [{i}/{total_statements}] Ejecutado: {statement[:60]}...")
             except Exception as e:
                 print(f"⚠️  Error en statement {i}: {e}")
                 # Continuar con las siguientes sentencias
@@ -198,6 +200,12 @@ COMMIT;
         connection.commit()
         print("🎉 TODAS LAS TABLAS CREADAS EXITOSAMENTE")
         print("📊 Tablas creadas: roles, usuarios, categorias_gastos, categorias_ingresos, gastos, ingresos, presupuestos, ahorros")
+        
+        # Verificar que las tablas se crearon
+        print("🔍 Verificando creación de tablas...")
+        cursor.execute("SHOW TABLES")
+        tables = cursor.fetchall()
+        print(f"📋 Tablas existentes en la base de datos: {[table[0] for table in tables]}")
         
     except Exception as e:
         print(f"❌ Error general: {e}")
