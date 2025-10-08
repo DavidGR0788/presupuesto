@@ -26,7 +26,7 @@ def create_app():
     
     app.config.from_object(Config)
     
-    # Configurar sesión para que NO sea permanente (se cierre al cerrar navegador)
+    # Configurar sesión para que NO sea permanente (se cierra al cerrar navegador)
     app.config['PERMANENT_SESSION_LIFETIME'] = Config.PERMANENT_SESSION_LIFETIME
     
     # Importar y registrar controladores
@@ -54,10 +54,9 @@ def create_app():
     
     return app
 
-# Esto es importante para gunicorn
+# Esto es importante para gunicorn - UNA SOLA INSTANCIA
 app = create_app()
 
 if __name__ == '__main__':
-    app = create_app()
     port = int(os.getenv('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
