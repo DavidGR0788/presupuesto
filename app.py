@@ -25,6 +25,26 @@ def create_app():
     
     print("=== 🚨 CONFIGURACIÓN RAILWAY - FIN ===")
     
+    # ✅ INICIALIZACIÓN AUTOMÁTICA DE BASE DE DATOS
+    print("=== 🗄️ VERIFICANDO BASE DE DATOS ===")
+    try:
+        # Intentar una consulta simple para ver si las tablas existen
+        from utils.database import Database
+        db = Database()
+        db.execute_query("SELECT 1 FROM usuarios LIMIT 1")
+        print("✅ Tablas ya existen")
+    except Exception as e:
+        if "doesn't exist" in str(e):
+            print("📦 Tablas no existen, ejecutando inicialización...")
+            try:
+                from init_database import init_database
+                init_database()
+                print("🎉 Base de datos inicializada exitosamente")
+            except Exception as init_error:
+                print(f"❌ Error en inicialización: {init_error}")
+        else:
+            print(f"⚠️ Otro error: {e}")
+    
     app = Flask(__name__, 
                 template_folder='templates',
                 static_folder='static')
