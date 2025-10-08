@@ -5,17 +5,14 @@ from datetime import timedelta
 load_dotenv()
 
 class Config:
-    # Configuración para PostgreSQL en Render
-    DATABASE_URL = os.getenv('DATABASE_URL', '')
+    # Configuración para Railway - usa los nombres EXACTOS de Railway
+    MYSQL_HOST = os.getenv('MYSQLHOST', '127.0.0.1')  # Railway usa MYSQLHOST (sin guión)
+    MYSQL_USER = os.getenv('MYSQLUSER', 'root')       # Railway usa MYSQLUSER (sin guión)
+    MYSQL_PASSWORD = os.getenv('MYSQLPASSWORD', '')   # Railway usa MYSQLPASSWORD (sin guión)
+    MYSQL_DB = os.getenv('MYSQLDATABASE', 'presupuesto_db')  # Railway usa MYSQLDATABASE
+    MYSQL_PORT = int(os.getenv('MYSQLPORT', 3306))    # Railway usa MYSQLPORT (sin guión)
     
-    # Variables individuales para compatibilidad (si las necesitas)
-    DB_HOST = os.getenv('DB_HOST', 'localhost')
-    DB_USER = os.getenv('DB_USER', 'postgres')
-    DB_PASSWORD = os.getenv('DB_PASSWORD', '')
-    DB_NAME = os.getenv('DB_NAME', 'presupuesto')
-    DB_PORT = os.getenv('DB_PORT', '5432')
-    
-    SECRET_KEY = os.getenv('SECRET_KEY', 'clave-super-secreta-muy-larga-2025-presupuesto-app')
+    SECRET_KEY = os.getenv('SECRET_KEY', 'presupuesto_secret_key_2025')
     
     # Configuración de sesión - NO permanente (se cierra al cerrar navegador)
     PERMANENT_SESSION_LIFETIME = timedelta(minutes=5)
