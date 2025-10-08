@@ -1,18 +1,25 @@
 import pymysql
+import os
 from config import Config
 
 class Database:
     def get_connection(self):
         """Obtener conexión a la base de datos"""
-        return pymysql.connect(
-            host=Config.MYSQL_HOST,
-            user=Config.MYSQL_USER,
-            password=Config.MYSQL_PASSWORD,
-            database=Config.MYSQL_DB,
-            port=Config.MYSQL_PORT,
-            charset='utf8mb4',
-            cursorclass=pymysql.cursors.DictCursor
-        )
+        connection_config = {
+            'host': Config.MYSQL_HOST,
+            'user': Config.MYSQL_USER,
+            'password': Config.MYSQL_PASSWORD,
+            'database': Config.MYSQL_DB,
+            'port': Config.MYSQL_PORT,
+            'charset': 'utf8mb4',
+            'cursorclass': pymysql.cursors.DictCursor
+        }
+        
+        # AGREGAR SSL SOLO EN PRODUCCIÓN (Railway)
+        if os.getenv('RAILWAY_ENV'):
+            connection_config['ssl'] = {'ca': '/etc/ssl/cert.pem'}
+        
+        return pymysql.connect(**connection_config)
 
     def execute_query(self, query, params=None, fetch=False, fetch_one=False):
         """Ejecutar consulta en la base de datos"""
