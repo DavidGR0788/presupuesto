@@ -25,8 +25,8 @@ class BudgetModel:
             month = current_date.month
             year = current_date.year
 
-        # Formatear el mes_year para comparar con el campo VARCHAR
-        mes_year_str = f"{year}-{month:02d}"
+        # ✅ CORREGIDO: Formatear como fecha completa YYYY-MM-DD
+        mes_year_str = f"{year}-{month:02d}-01"
 
         query = f"""
         SELECT p.*, cg.nombre as categoria_nombre, cg.color, cg.icono,
@@ -41,10 +41,10 @@ class BudgetModel:
         LEFT JOIN categorias_gastos cg ON p.categoria_gasto_id = cg.id
         LEFT JOIN gastos g ON p.categoria_gasto_id = g.categoria_id 
             AND g.usuario_id = p.usuario_id 
-            AND MONTH(g.fecha) = %s  -- Usar los parámetros month/year directamente
+            AND MONTH(g.fecha) = %s
             AND YEAR(g.fecha) = %s
         WHERE p.usuario_id = %s 
-            AND p.mes_year = %s  -- Comparar directamente con el campo VARCHAR
+            AND p.mes_year = %s
         GROUP BY p.id, p.monto_maximo, cg.nombre, cg.color, cg.icono
         ORDER BY cg.nombre
         """
@@ -58,8 +58,8 @@ class BudgetModel:
             month = current_date.month
             year = current_date.year
 
-        # Formatear el mes_year para comparar con el campo VARCHAR
-        mes_year_str = f"{year}-{month:02d}"
+        # ✅ CORREGIDO: Formatear como fecha completa YYYY-MM-DD
+        mes_year_str = f"{year}-{month:02d}-01"
 
         query = """
         SELECT 
@@ -75,7 +75,7 @@ class BudgetModel:
             COUNT(p.id) as total_categorias
         FROM presupuestos p
         WHERE p.usuario_id = %s 
-            AND p.mes_year = %s  -- Comparar directamente con el campo VARCHAR
+            AND p.mes_year = %s
         """
         
         result = self.db.execute_query(query, (month, year, usuario_id, mes_year_str), fetch_one=True)
@@ -116,8 +116,8 @@ class BudgetModel:
 
     def get_categories_without_budget(self, usuario_id, month, year):
         """Obtener categorías sin presupuesto asignado"""
-        # Formatear el mes_year para comparar con el campo VARCHAR
-        mes_year_str = f"{year}-{month:02d}"
+        # ✅ CORREGIDO: Formatear como fecha completa YYYY-MM-DD
+        mes_year_str = f"{year}-{month:02d}-01"
         
         query = """
         SELECT cg.* 
@@ -126,7 +126,7 @@ class BudgetModel:
             SELECT categoria_gasto_id 
             FROM presupuestos 
             WHERE usuario_id = %s 
-            AND mes_year = %s  -- Comparar directamente con el campo VARCHAR
+            AND mes_year = %s
         )
         ORDER BY cg.nombre
         """
@@ -139,8 +139,8 @@ class BudgetModel:
             month = current_date.month
             year = current_date.year
 
-        # Formatear el mes_year para comparar con el campo VARCHAR
-        mes_year_str = f"{year}-{month:02d}"
+        # ✅ CORREGIDO: Formatear como fecha completa YYYY-MM-DD
+        mes_year_str = f"{year}-{month:02d}-01"
 
         query = f"""
         SELECT p.*, 
