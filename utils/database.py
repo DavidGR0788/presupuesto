@@ -13,15 +13,16 @@ class Database:
             'port': Config.MYSQL_PORT,
             'charset': 'utf8mb4',
             'cursorclass': pymysql.cursors.DictCursor,
-            'connect_timeout': 10,  # TIMEOUT de conexión
-            'read_timeout': 10,     # TIMEOUT de lectura
-            'write_timeout': 10     # TIMEOUT de escritura
+            'connect_timeout': 10,
+            'read_timeout': 10,
+            'write_timeout': 10
         }
         
-        # AGREGAR SSL SOLO EN PRODUCCIÓN (Railway)
+        # CONFIGURACIÓN SSL CORRECTA PARA RAILWAY
         if os.getenv('RAILWAY_ENV') or Config.MYSQL_HOST != 'localhost':
-            connection_config['ssl'] = {'ca': '/etc/ssl/cert.pem'}
-            print("🔐 Usando conexión SSL para MySQL")
+            # Railway requiere SSL pero sin archivo específico
+            connection_config['ssl'] = {'ssl': True}
+            print("🔐 Usando conexión SSL para MySQL (modo simple)")
         
         try:
             return pymysql.connect(**connection_config)
