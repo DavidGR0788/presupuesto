@@ -16,6 +16,8 @@ class ExpenseController:
         self.bp.route('/add', methods=['POST'])(self.add)
         self.bp.route('/delete/<int:expense_id>', methods=['POST'])(self.delete)
         self.bp.route('/api')(self.api_expenses)
+        # ✅ NUEVA RUTA AGREGADA
+        self.bp.route('/editar_gasto', methods=['POST'])(self.editar_gasto)
 
     def index(self):
         """Página de listado de gastos"""
@@ -156,6 +158,52 @@ class ExpenseController:
                 return redirect(url_for('expenses.index'))
             except Exception as e:
                 flash('Error al agregar gasto: ' + str(e), 'error')
+        
+        return redirect(url_for('expenses.index'))
+
+    def editar_gasto(self):
+        """✅ NUEVO MÉTODO: Editar gasto existente"""
+        if 'user_id' not in session:
+            return redirect(url_for('auth.login'))
+        
+        if request.method == 'POST':
+            try:
+                gasto_id = request.form.get('id')
+                concepto = request.form.get('concepto')
+                monto = float(request.form.get('monto'))
+                categoria_id = request.form.get('categoria_id')
+                fecha = request.form.get('fecha')
+                esencial = 'esencial' in request.form
+                descripcion = request.form.get('descripcion', '')
+                user_id = session['user_id']
+
+                # Verificar que el gasto pertenece al usuario
+                expense = self.expense_model.db.execute_query(
+                    "SELECT * FROM gastos WHERE id = %s AND usuario_id = %s",
+                    (gasto_id, user_id),
+                    fetch_one=True
+                )
+                
+                if not expense:
+                    flash('No tienes permiso para editar este gasto', 'error')
+                    return redirect(url_for('expenses.index'))
+
+                # Actualizar en la base de datos
+                update_query = """
+                    UPDATE gastos 
+                    SET concepto = %s, monto = %s, categoria_id = %s, fecha = %s, 
+                        esencial = %s, descripcion = %s
+                    WHERE id = %s AND usuario_id = %s
+                """
+                self.expense_model.db.execute_query(
+                    update_query, 
+                    (concepto, monto, categoria_id, fecha, esencial, descripcion, gasto_id, user_id)
+                )
+                
+                flash('¡Gasto actualizado exitosamente!', 'success')
+                
+            except Exception as e:
+                flash('Error al editar el gasto: ' + str(e), 'error')
         
         return redirect(url_for('expenses.index'))
 

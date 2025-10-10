@@ -167,7 +167,7 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm btn-outline-warning me-1 edit-expense" 
+                                    <button class="btn btn-sm btn-outline-primary me-1 edit-expense" 
                                             data-expense-id="{{ expense.id }}"
                                             onclick="editarGasto({{ expense.id }}, '{{ expense.concepto }}', {{ expense.monto }}, '{{ expense.fecha.strftime('%Y-%m-%d') if expense.fecha else '' }}', {{ expense.categoria_id }}, {{ 'true' if expense.esencial else 'false' }}, '{{ expense.descripcion if expense.descripcion else '' }}')">
                                         <i class="fas fa-edit"></i>
