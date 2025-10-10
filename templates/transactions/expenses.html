@@ -167,6 +167,11 @@
                                     {% endif %}
                                 </td>
                                 <td>
+                                    <button class="btn btn-sm btn-outline-warning me-1 edit-expense" 
+                                            data-expense-id="{{ expense.id }}"
+                                            onclick="editarGasto({{ expense.id }}, '{{ expense.concepto }}', {{ expense.monto }}, '{{ expense.fecha.strftime('%Y-%m-%d') if expense.fecha else '' }}', {{ expense.categoria_id }}, {{ 'true' if expense.esencial else 'false' }}, '{{ expense.descripcion if expense.descripcion else '' }}')">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
                                     <button class="btn btn-sm btn-outline-danger delete-expense" 
                                             data-expense-id="{{ expense.id }}">
                                         <i class="fas fa-trash"></i>
@@ -188,6 +193,56 @@
         </div>
     </div>
 </div>
+
+<!-- Modal Editar Gasto -->
+<div class="modal fade" id="editarGastoModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Gasto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <form action="/editar_gasto" method="POST">
+                <div class="modal-body">
+                    <input type="hidden" name="id" id="editar_gasto_id">
+                    <div class="mb-3">
+                        <label for="editar_concepto" class="form-label">Concepto *</label>
+                        <input type="text" class="form-control" id="editar_concepto" name="concepto" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editar_monto" class="form-label">Monto *</label>
+                        <input type="number" class="form-control" id="editar_monto" name="monto" step="0.01" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editar_categoria_id" class="form-label">Categoría *</label>
+                        <select class="form-select" id="editar_categoria_id" name="categoria_id" required>
+                            <option value="">Selecciona una categoría</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}">{{ category.icono }} {{ category.nombre }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editar_fecha" class="form-label">Fecha *</label>
+                        <input type="date" class="form-control" id="editar_fecha" name="fecha" required>
+                    </div>
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="editar_esencial" name="esencial">
+                        <label class="form-check-label" for="editar_esencial">Gasto esencial</label>
+                    </div>
+                    <div class="mb-3">
+                        <label for="editar_descripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="editar_descripcion" name="descripcion" rows="3"></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 {% endblock %}
 
 {% block scripts %}
@@ -204,6 +259,22 @@ function limpiarFormatosAntesDeEnviar() {
     document.querySelectorAll('input.formato-monto').forEach(input => {
         input.value = input.value.replace(/\./g, '');
     });
+}
+
+// Función para editar gasto
+function editarGasto(id, concepto, monto, fecha, categoriaId, esencial, descripcion) {
+    // Llenar el modal con los datos actuales
+    document.getElementById('editar_gasto_id').value = id;
+    document.getElementById('editar_concepto').value = concepto;
+    document.getElementById('editar_monto').value = monto;
+    document.getElementById('editar_fecha').value = fecha;
+    document.getElementById('editar_categoria_id').value = categoriaId;
+    document.getElementById('editar_esencial').checked = (esencial === 'true' || esencial === true);
+    document.getElementById('editar_descripcion').value = descripcion;
+    
+    // Mostrar el modal
+    const modal = new bootstrap.Modal(document.getElementById('editarGastoModal'));
+    modal.show();
 }
 
 document.addEventListener('DOMContentLoaded', function() {
