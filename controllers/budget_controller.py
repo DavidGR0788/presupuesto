@@ -63,11 +63,17 @@ class BudgetController:
                 user_id = session['user_id']
                 # Limpiar formato del monto (remover puntos de separadores de miles)
                 monto_maximo_limpio = monto_maximo.replace('.', '')
+                
+                # ✅ CORRECCIÓN: Convertir '2025-10' a '2025-10-01' para MySQL DATE
+                mes_year_completo = f"{mes_year}-01"
+                print(f"🔧 DEBUG: Convirtiendo mes_year '{mes_year}' a '{mes_year_completo}'")
+                
                 budget_id = self.budget_model.create(
-                    user_id, int(categoria_gasto_id), float(monto_maximo_limpio), mes_year
+                    user_id, int(categoria_gasto_id), float(monto_maximo_limpio), mes_year_completo
                 )
                 flash('¡Presupuesto agregado exitosamente!', 'success')
             except Exception as e:
+                print(f"💥 ERROR al agregar presupuesto: {str(e)}")
                 flash('Error al agregar presupuesto: ' + str(e), 'error')
         
         return redirect(url_for('budgets.index'))
