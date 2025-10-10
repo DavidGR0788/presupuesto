@@ -202,7 +202,7 @@
                 <h5 class="modal-title">Editar Gasto</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <form action="/editar_gasto" method="POST">
+            <form action="{{ url_for('expenses.editar_gasto') }}" method="POST">
                 <div class="modal-body">
                     <input type="hidden" name="id" id="editar_gasto_id">
                     <div class="mb-3">

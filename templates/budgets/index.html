@@ -181,19 +181,17 @@
                                     </div>
                                 </td>
                                 <td>
-                                    <div class="btn-group btn-group-sm">
-                                        <button class="btn btn-sm btn-outline-primary me-1 edit-budget" 
-                                                data-budget-id="{{ budget.id }}"
-                                                data-budget-amount="{{ budget.monto_maximo }}"
-                                                title="Editar">
-                                            <i class="fas fa-edit"></i>
-                                        </button>
-                                        <button class="btn btn-sm btn-outline-danger delete-budget" 
-                                                data-budget-id="{{ budget.id }}"
-                                                title="Eliminar">
-                                            <i class="fas fa-trash"></i>
-                                        </button>
-                                    </div>
+                                    <button class="btn btn-sm btn-outline-primary me-1 edit-budget" 
+                                            data-budget-id="{{ budget.id }}"
+                                            data-budget-amount="{{ budget.monto_maximo }}"
+                                            title="Editar">
+                                        <i class="fas fa-edit"></i>
+                                    </button>
+                                    <button class="btn btn-sm btn-outline-danger delete-budget" 
+                                            data-budget-id="{{ budget.id }}"
+                                            title="Eliminar">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
                                 </td>
                             </tr>
                             {% endfor %}
