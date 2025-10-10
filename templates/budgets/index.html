@@ -185,6 +185,7 @@
                                             data-budget-id="{{ budget.id }}"
                                             data-budget-amount="{{ budget.monto_maximo }}"
                                             data-budget-categoria="{{ budget.categoria_nombre }}"
+                                            data-budget-categoria-id="{{ budget.categoria_gasto_id }}"
                                             data-budget-mes-year="{{ budget.mes_year.strftime('%Y-%m') if budget.mes_year else '' }}"
                                             title="Editar">
                                         <i class="fas fa-edit"></i>
@@ -215,7 +216,7 @@
     </div>
 </div>
 
-<!-- Modal para editar presupuesto - ACTUALIZADO -->
+<!-- Modal para editar presupuesto - COMPLETAMENTE EDITABLE -->
 <div class="modal fade" id="editBudgetModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -223,31 +224,40 @@
                 <h5 class="modal-title">Editar Presupuesto</h5>
                 <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
-            <div class="modal-body">
-                <form id="editBudgetForm" onsubmit="limpiarFormatosAntesDeEnviar()">
-                    <!-- ✅ NUEVO: Campo de Categoría (solo lectura) -->
+            <form id="editBudgetForm" onsubmit="limpiarFormatosAntesDeEnviar()">
+                <div class="modal-body">
+                    <input type="hidden" id="edit_budget_id" name="id">
+                    
+                    <!-- ✅ EDITABLE: Campo de Categoría -->
                     <div class="mb-3">
-                        <label for="edit_categoria" class="form-label">Categoría</label>
-                        <input type="text" class="form-control" id="edit_categoria" readonly style="background-color: #f8f9fa;">
+                        <label for="edit_categoria_id" class="form-label">Categoría *</label>
+                        <select class="form-select" id="edit_categoria_id" name="categoria_gasto_id" required>
+                            <option value="">Selecciona una categoría</option>
+                            {% for category in expense_categories %}
+                            <option value="{{ category.id }}">
+                                {{ category.icono }} {{ category.nombre }}
+                            </option>
+                            {% endfor %}
+                        </select>
                     </div>
                     
-                    <!-- ✅ NUEVO: Campo de Fecha (solo lectura) -->
+                    <!-- ✅ EDITABLE: Campo de Fecha -->
                     <div class="mb-3">
-                        <label for="edit_mes_year" class="form-label">Mes y Año</label>
-                        <input type="text" class="form-control" id="edit_mes_year" readonly style="background-color: #f8f9fa;">
+                        <label for="edit_mes_year" class="form-label">Mes y Año *</label>
+                        <input type="month" class="form-control" id="edit_mes_year" name="mes_year" required>
                     </div>
                     
-                    <!-- Campo de Monto Máximo -->
+                    <!-- ✅ EDITABLE: Campo de Monto Máximo -->
                     <div class="mb-3">
-                        <label for="edit_monto_maximo" class="form-label">Nuevo Monto Máximo *</label>
-                        <input type="text" class="form-control formato-monto" id="edit_monto_maximo" required>
+                        <label for="edit_monto_maximo" class="form-label">Monto Máximo *</label>
+                        <input type="text" class="form-control formato-monto" id="edit_monto_maximo" name="monto_maximo" required>
                     </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary" id="saveBudgetChanges">Guardar Cambios</button>
-            </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -263,19 +273,18 @@ function limpiarFormatosAntesDeEnviar() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    let currentBudgetId = null;
-    
     // Editar presupuesto - ACTUALIZADO
     document.querySelectorAll('.edit-budget').forEach(button => {
         button.addEventListener('click', function() {
-            currentBudgetId = this.getAttribute('data-budget-id');
+            const budgetId = this.getAttribute('data-budget-id');
             const currentAmount = this.getAttribute('data-budget-amount');
-            const categoria = this.getAttribute('data-budget-categoria');
+            const categoriaId = this.getAttribute('data-budget-categoria-id');
             const mesYear = this.getAttribute('data-budget-mes-year');
             
             // Llenar el modal con todos los datos
+            document.getElementById('edit_budget_id').value = budgetId;
             document.getElementById('edit_monto_maximo').value = currentAmount;
-            document.getElementById('edit_categoria').value = categoria;
+            document.getElementById('edit_categoria_id').value = categoriaId;
             document.getElementById('edit_mes_year').value = mesYear;
             
             const modal = new bootstrap.Modal(document.getElementById('editBudgetModal'));
@@ -283,19 +292,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Guardar cambios del presupuesto
-    document.getElementById('saveBudgetChanges').addEventListener('click', function() {
-        const newAmount = document.getElementById('edit_monto_maximo').value;
+    // Guardar cambios del presupuesto - ACTUALIZADO
+    document.getElementById('editBudgetForm').addEventListener('submit', function(e) {
+        e.preventDefault();
         
-        if (!newAmount || newAmount <= 0) {
-            alert('Por favor ingresa un monto válido');
-            return;
-        }
+        const budgetId = document.getElementById('edit_budget_id').value;
+        const formData = new FormData(this);
         
-        const formData = new FormData();
-        formData.append('monto_maximo', newAmount);
-        
-        fetch(`/budgets/update/${currentBudgetId}`, {
+        fetch(`/budgets/update/${budgetId}`, {
             method: 'POST',
             body: formData
         })
