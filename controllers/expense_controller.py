@@ -3,6 +3,7 @@ from models.expense import ExpenseModel
 from models.budget import BudgetModel  # ← NUEVO: Importar BudgetModel
 from utils.helpers import decimal_to_float
 from datetime import datetime
+import traceback
 
 class ExpenseController:
     def __init__(self):
@@ -163,19 +164,31 @@ class ExpenseController:
 
     def editar_gasto(self):
         """✅ NUEVO MÉTODO: Editar gasto existente"""
+        print("=== 🚨 DEBUG: INICIANDO EDICIÓN DE GASTO ===")
+        print(f"🌐 DEBUG: Ruta accedida: {request.url}")
+        print(f"🌐 DEBUG: Método: {request.method}")
+        
         if 'user_id' not in session:
+            print("❌ DEBUG: Usuario no autenticado")
             return redirect(url_for('auth.login'))
         
         if request.method == 'POST':
             try:
+                # Debug: imprimir todos los datos del formulario
+                print("📋 DEBUG: Datos del formulario recibidos:")
+                for key, value in request.form.items():
+                    print(f"   {key}: {value}")
+                
                 gasto_id = request.form.get('id')
                 concepto = request.form.get('concepto')
-                monto = float(request.form.get('monto'))
+                monto = request.form.get('monto')
                 categoria_id = request.form.get('categoria_id')
                 fecha = request.form.get('fecha')
                 esencial = 'esencial' in request.form
                 descripcion = request.form.get('descripcion', '')
                 user_id = session['user_id']
+
+                print(f"🔍 DEBUG: user_id={user_id}, gasto_id={gasto_id}")
 
                 # Verificar que el gasto pertenece al usuario
                 expense = self.expense_model.db.execute_query(
@@ -185,9 +198,15 @@ class ExpenseController:
                 )
                 
                 if not expense:
+                    print("❌ DEBUG: Gasto no encontrado o no pertenece al usuario")
                     flash('No tienes permiso para editar este gasto', 'error')
                     return redirect(url_for('expenses.index'))
 
+                print("✅ DEBUG: Gasto validado, procediendo a actualizar...")
+
+                # Convertir monto a float
+                monto_float = float(monto)
+                
                 # Actualizar en la base de datos
                 update_query = """
                     UPDATE gastos 
@@ -197,14 +216,20 @@ class ExpenseController:
                 """
                 self.expense_model.db.execute_query(
                     update_query, 
-                    (concepto, monto, categoria_id, fecha, esencial, descripcion, gasto_id, user_id)
+                    (concepto, monto_float, categoria_id, fecha, esencial, descripcion, gasto_id, user_id)
                 )
                 
+                print("🎉 DEBUG: Gasto actualizado exitosamente")
                 flash('¡Gasto actualizado exitosamente!', 'success')
                 
             except Exception as e:
+                print(f"💥 DEBUG: Error al editar gasto: {str(e)}")
+                print(f"💥 DEBUG: Tipo de error: {type(e).__name__}")
+                print(f"💥 DEBUG: Traceback completo:")
+                traceback.print_exc()
                 flash('Error al editar el gasto: ' + str(e), 'error')
         
+        print("=== 🚨 DEBUG: FINALIZANDO EDICIÓN DE GASTO ===")
         return redirect(url_for('expenses.index'))
 
     def _get_category_name(self, categoria_id):
