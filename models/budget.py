@@ -104,10 +104,22 @@ class BudgetModel:
         query = f"SELECT * FROM {self.table} WHERE id = %s AND usuario_id = %s"
         return self.db.execute_query(query, (presupuesto_id, usuario_id), fetch_one=True)
 
-    def update(self, presupuesto_id, usuario_id, monto_maximo):
-        """Actualizar presupuesto"""
-        query = f"UPDATE {self.table} SET monto_maximo = %s WHERE id = %s AND usuario_id = %s"
-        return self.db.execute_query(query, (monto_maximo, presupuesto_id, usuario_id))
+    def update(self, presupuesto_id, usuario_id, monto_maximo, categoria_gasto_id=None, mes_year=None):
+        """Actualizar presupuesto - CORREGIDO PARA ACEPTAR TODOS LOS CAMPOS"""
+        if categoria_gasto_id and mes_year:
+            # ✅ ACTUALIZAR: Actualizar todos los campos
+            query = f"""
+            UPDATE {self.table} 
+            SET monto_maximo = %s, categoria_gasto_id = %s, mes_year = %s
+            WHERE id = %s AND usuario_id = %s
+            """
+            print(f"🔧 DEBUG: Actualizando presupuesto {presupuesto_id} con todos los campos")
+            return self.db.execute_query(query, (monto_maximo, categoria_gasto_id, mes_year, presupuesto_id, usuario_id))
+        else:
+            # Solo actualizar monto (compatibilidad hacia atrás)
+            query = f"UPDATE {self.table} SET monto_maximo = %s WHERE id = %s AND usuario_id = %s"
+            print(f"🔧 DEBUG: Actualizando solo monto del presupuesto {presupuesto_id}")
+            return self.db.execute_query(query, (monto_maximo, presupuesto_id, usuario_id))
 
     def delete(self, presupuesto_id, usuario_id):
         """Eliminar presupuesto"""

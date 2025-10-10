@@ -79,24 +79,40 @@ class BudgetController:
         return redirect(url_for('budgets.index'))
 
     def update(self, budget_id):
-        """Actualizar presupuesto"""
+        """Actualizar presupuesto - CORREGIDO PARA ACEPTAR TODOS LOS CAMPOS"""
         if 'user_id' not in session:
             return jsonify({'success': False, 'error': 'No autorizado'}), 401
         
         if request.method == 'POST':
             monto_maximo = request.form.get('monto_maximo')
+            categoria_gasto_id = request.form.get('categoria_gasto_id')
+            mes_year = request.form.get('mes_year')
             
-            if not monto_maximo:
-                return jsonify({'success': False, 'error': 'Monto requerido'}), 400
+            print(f"🔧 DEBUG: Datos recibidos en update - monto: {monto_maximo}, categoria: {categoria_gasto_id}, mes_year: {mes_year}")
+            
+            if not all([monto_maximo, categoria_gasto_id, mes_year]):
+                return jsonify({'success': False, 'error': 'Todos los campos son requeridos'}), 400
             
             try:
                 user_id = session['user_id']
                 # Limpiar formato del monto (remover puntos de separadores de miles)
                 monto_maximo_limpio = monto_maximo.replace('.', '')
-                self.budget_model.update(budget_id, user_id, float(monto_maximo_limpio))
+                
+                # ✅ CORRECCIÓN: Convertir '2025-10' a '2025-10-01' para MySQL DATE
+                mes_year_completo = f"{mes_year}-01"
+                
+                # ✅ ACTUALIZAR: Llamar al método update con todos los parámetros
+                self.budget_model.update(
+                    budget_id, 
+                    user_id, 
+                    float(monto_maximo_limpio),
+                    int(categoria_gasto_id),
+                    mes_year_completo
+                )
                 flash('¡Presupuesto actualizado exitosamente!', 'success')
                 return jsonify({'success': True})
             except Exception as e:
+                print(f"💥 ERROR al actualizar presupuesto: {str(e)}")
                 return jsonify({'success': False, 'error': str(e)}), 500
 
     def delete(self, budget_id):
