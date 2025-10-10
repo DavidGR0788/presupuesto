@@ -184,6 +184,8 @@
                                     <button class="btn btn-sm btn-outline-primary me-1 edit-budget" 
                                             data-budget-id="{{ budget.id }}"
                                             data-budget-amount="{{ budget.monto_maximo }}"
+                                            data-budget-categoria="{{ budget.categoria_nombre }}"
+                                            data-budget-mes-year="{{ budget.mes_year.strftime('%Y-%m') if budget.mes_year else '' }}"
                                             title="Editar">
                                         <i class="fas fa-edit"></i>
                                     </button>
@@ -213,7 +215,7 @@
     </div>
 </div>
 
-<!-- Modal para editar presupuesto -->
+<!-- Modal para editar presupuesto - ACTUALIZADO -->
 <div class="modal fade" id="editBudgetModal" tabindex="-1">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -223,8 +225,21 @@
             </div>
             <div class="modal-body">
                 <form id="editBudgetForm" onsubmit="limpiarFormatosAntesDeEnviar()">
+                    <!-- ✅ NUEVO: Campo de Categoría (solo lectura) -->
                     <div class="mb-3">
-                        <label for="edit_monto_maximo" class="form-label">Nuevo Monto Máximo</label>
+                        <label for="edit_categoria" class="form-label">Categoría</label>
+                        <input type="text" class="form-control" id="edit_categoria" readonly style="background-color: #f8f9fa;">
+                    </div>
+                    
+                    <!-- ✅ NUEVO: Campo de Fecha (solo lectura) -->
+                    <div class="mb-3">
+                        <label for="edit_mes_year" class="form-label">Mes y Año</label>
+                        <input type="text" class="form-control" id="edit_mes_year" readonly style="background-color: #f8f9fa;">
+                    </div>
+                    
+                    <!-- Campo de Monto Máximo -->
+                    <div class="mb-3">
+                        <label for="edit_monto_maximo" class="form-label">Nuevo Monto Máximo *</label>
                         <input type="text" class="form-control formato-monto" id="edit_monto_maximo" required>
                     </div>
                 </form>
@@ -250,13 +265,18 @@ function limpiarFormatosAntesDeEnviar() {
 document.addEventListener('DOMContentLoaded', function() {
     let currentBudgetId = null;
     
-    // Editar presupuesto
+    // Editar presupuesto - ACTUALIZADO
     document.querySelectorAll('.edit-budget').forEach(button => {
         button.addEventListener('click', function() {
             currentBudgetId = this.getAttribute('data-budget-id');
             const currentAmount = this.getAttribute('data-budget-amount');
+            const categoria = this.getAttribute('data-budget-categoria');
+            const mesYear = this.getAttribute('data-budget-mes-year');
             
+            // Llenar el modal con todos los datos
             document.getElementById('edit_monto_maximo').value = currentAmount;
+            document.getElementById('edit_categoria').value = categoria;
+            document.getElementById('edit_mes_year').value = mesYear;
             
             const modal = new bootstrap.Modal(document.getElementById('editBudgetModal'));
             modal.show();
