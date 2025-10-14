@@ -59,7 +59,7 @@
         .mobile-navbar {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
             border-bottom: none;
-            height: 56px;
+            height: 50px;
             padding: 0 1rem;
         }
 
@@ -79,28 +79,33 @@
             height: 1.5rem;
         }
 
-        /* ✅ SOLUCIÓN 2: Quitar sticky headers y ajustar títulos */
+        /* ✅ SOLUCIÓN 2: Ajustar headers para que se vean completos */
         main {
-            padding-top: 1rem;
+            padding-top: 0.5rem;
         }
 
-        /* Quitar todos los estilos sticky */
+        /* Header más compacto */
         .d-flex.justify-content-between.align-items-center.pt-3.pb-2.mb-3.border-bottom {
             background: white;
-            margin: 0 0 1.5rem 0 !important;
-            padding: 1rem 0 !important;
+            margin: 0 0 1rem 0 !important;
+            padding: 0.75rem 0 !important;
             border-bottom: 1px solid #dee2e6 !important;
             position: static !important;
+        }
+
+        .d-flex.justify-content-between.align-items-center.pt-3.pb-2.mb-3.border-bottom h1.h2 {
+            font-size: 1.4rem !important;
+            margin-bottom: 0 !important;
         }
 
         /* ✅ CORREGIDO: Estilos responsive para móviles */
         @media (max-width: 767.98px) {
             .sidebar {
                 position: fixed;
-                top: 56px; /* Altura del navbar móvil */
+                top: 50px; /* Altura reducida del navbar móvil */
                 left: 0;
                 width: 280px;
-                height: calc(100vh - 56px);
+                height: calc(100vh - 50px);
                 z-index: 1000;
                 transform: translateX(-100%);
                 transition: transform 0.3s ease-in-out;
@@ -112,21 +117,21 @@
             }
             
             main {
-                margin-top: 56px; /* Compensar altura del navbar */
-                padding-top: 1rem;
+                margin-top: 50px; /* Compensar altura reducida del navbar */
+                padding-top: 0.5rem;
             }
 
-            /* Ajustar headers en móvil */
+            /* Header más compacto en móvil */
             .d-flex.justify-content-between.align-items-center.pt-3.pb-2.mb-3.border-bottom {
                 flex-direction: column;
                 align-items: flex-start !important;
-                padding: 1rem 0 !important;
-                margin: 0 0 1rem 0 !important;
+                padding: 0.5rem 0 !important;
+                margin: 0 0 0.75rem 0 !important;
             }
 
             .d-flex.justify-content-between.align-items-center.pt-3.pb-2.mb-3.border-bottom h1.h2 {
-                margin-bottom: 0.5rem !important;
-                font-size: 1.5rem !important;
+                font-size: 1.3rem !important;
+                margin-bottom: 0.25rem !important;
             }
 
             .btn-toolbar {
@@ -136,16 +141,30 @@
             
             /* Asegurar que las cards se vean bien en móviles */
             .card {
-                margin-bottom: 15px;
+                margin-bottom: 12px;
+            }
+
+            /* Cards más compactas en móvil */
+            .card-body {
+                padding: 1rem;
+            }
+
+            .card-title {
+                font-size: 0.9rem;
+                margin-bottom: 0.5rem;
+            }
+
+            .card h3 {
+                font-size: 1.25rem;
             }
             
             /* Overlay para cuando el menú está abierto - CORREGIDO */
             .sidebar-overlay {
                 position: fixed;
-                top: 56px;
+                top: 50px;
                 left: 0;
                 width: 100%;
-                height: calc(100vh - 56px);
+                height: calc(100vh - 50px);
                 background: rgba(0,0,0,0.5);
                 z-index: 999;
                 display: none;
@@ -160,11 +179,17 @@
                 display: none !important;
             }
 
-            /* Asegurar que el botón cerrar sesión sea visible */
+            /* ✅ SOLUCIÓN: Asegurar que el botón cerrar sesión sea visible */
+            .sidebar {
+                padding-bottom: 80px; /* Espacio para el botón cerrar sesión */
+            }
+
             .sidebar .btn-outline-light {
                 white-space: nowrap;
                 overflow: visible;
-                text-overflow: clip;
+                position: sticky;
+                bottom: 20px;
+                background: rgba(255,255,255,0.1);
             }
         }
 
@@ -415,7 +440,7 @@
                 if (checkSession()) {
                     // Si la sesión sigue activa pero hay inactividad, forzar logout
                     localStorage.removeItem(SESSION_KEY);
-                    alert('Tu sesión ha expirado por inactividad. Serás redirigido al login.');
+                    alert('Tu sesión ha expirado por inactividad. Serás redirigir al login.');
                     window.location.href = "{{ url_for('auth.logout') }}";
                 }
             }, MAX_SESSION_AGE);
