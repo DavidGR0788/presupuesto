@@ -55,64 +55,10 @@
     </div>
 </div>
 
-<div class="row">
-    <!-- Formulario para agregar ingresos -->
-    <div class="col-lg-4 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-plus-circle me-2"></i>
-                    Nuevo Ingreso
-                </h5>
-            </div>
-            <div class="card-body">
-                <form id="addIncomeForm" onsubmit="limpiarFormatosAntesDeEnviar()">
-                    <div class="mb-3">
-                        <label for="concepto" class="form-label">Concepto *</label>
-                        <input type="text" class="form-control" id="concepto" name="concepto" 
-                               placeholder="Ej: Salario, Freelance, Inversión..." required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="monto" class="form-label">Monto *</label>
-                        <input type="text" class="form-control formato-monto" id="monto" name="monto" 
-                               placeholder="0.00" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="fecha" class="form-label">Fecha *</label>
-                        <input type="date" class="form-control" id="fecha" name="fecha" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="categoria_id" class="form-label">Categoría *</label>
-                        <select class="form-select" id="categoria_id" name="categoria_id" required>
-                            <option value="">Selecciona una categoría</option>
-                            {% for category in categories %}
-                            <option value="{{ category.id }}">
-                                {{ category.icono }} {{ category.nombre }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="descripcion" class="form-label">Descripción</label>
-                        <textarea class="form-control" id="descripcion" name="descripcion" 
-                                  rows="3" placeholder="Detalles adicionales..."></textarea>
-                    </div>
-
-                    <button type="submit" class="btn btn-success w-100">
-                        <i class="fas fa-save me-2"></i>
-                        Agregar Ingreso
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Lista de ingresos -->
-    <div class="col-lg-8">
+<!-- ✅ REORGANIZADO PARA MÓVIL: Contenedor principal -->
+<div class="income-container">
+    <!-- Lista de ingresos - PRIMERO EN MÓVIL -->
+    <div class="income-list-section">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">
@@ -178,9 +124,64 @@
                 <div class="text-center text-muted py-4">
                     <i class="fas fa-money-bill-wave fa-3x mb-3"></i>
                     <p>No hay ingresos registrados en {{ mes_seleccionado[5:7] }}/{{ mes_seleccionado[0:4] }}</p>
-                    <p class="small">Agrega un ingreso usando el formulario a la izquierda</p>
+                    <p class="small">Agrega un ingreso usando el formulario</p>
                 </div>
                 {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario para agregar ingresos - ÚLTIMO EN MÓVIL -->
+    <div class="income-form-section">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    Nuevo Ingreso
+                </h5>
+            </div>
+            <div class="card-body">
+                <form id="addIncomeForm" onsubmit="limpiarFormatosAntesDeEnviar()">
+                    <div class="mb-3">
+                        <label for="concepto" class="form-label">Concepto *</label>
+                        <input type="text" class="form-control" id="concepto" name="concepto" 
+                               placeholder="Ej: Salario, Freelance, Inversión..." required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="monto" class="form-label">Monto *</label>
+                        <input type="text" class="form-control formato-monto" id="monto" name="monto" 
+                               placeholder="0.00" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="fecha" class="form-label">Fecha *</label>
+                        <input type="date" class="form-control" id="fecha" name="fecha" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="categoria_id" class="form-label">Categoría *</label>
+                        <select class="form-select" id="categoria_id" name="categoria_id" required>
+                            <option value="">Selecciona una categoría</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}">
+                                {{ category.icono }} {{ category.nombre }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="descripcion" name="descripcion" 
+                                  rows="3" placeholder="Detalles adicionales..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-success w-100">
+                        <i class="fas fa-save me-2"></i>
+                        Agregar Ingreso
+                    </button>
+                </form>
             </div>
         </div>
     </div>
@@ -233,6 +234,69 @@
         </div>
     </div>
 </div>
+
+<style>
+/* ✅ NUEVO: Estilos para reorganización móvil */
+.income-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.income-list-section {
+    order: 1; /* Primero en móvil */
+}
+
+.income-form-section {
+    order: 2; /* Último en móvil */
+}
+
+/* Para desktop: mantener orden original (formulario primero) */
+@media (min-width: 992px) {
+    .income-container {
+        flex-direction: row;
+    }
+    
+    .income-list-section {
+        order: 2;
+        flex: 1;
+        margin-left: 20px;
+    }
+    
+    .income-form-section {
+        order: 1;
+        flex: 0 0 400px;
+    }
+}
+
+/* Mejoras para móviles */
+@media (max-width: 991.98px) {
+    .income-container {
+        gap: 15px;
+    }
+    
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+    
+    .table th, .table td {
+        padding: 0.5rem;
+    }
+    
+    /* Mejorar botones en móvil */
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* Mejoras para tablets */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .income-form-section {
+        flex: 0 0 350px;
+    }
+}
+</style>
 {% endblock %}
 
 {% block scripts %}
