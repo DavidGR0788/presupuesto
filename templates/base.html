@@ -55,7 +55,7 @@
             color: white;
         }
 
-        /* ✅ NUEVO: Botón hamburguesa pequeño al lado izquierdo */
+        /* ✅ NUEVO: Botón hamburguesa fijo que desaparece al abrir menú */
         .hamburger-btn {
             position: fixed;
             top: 20px;
@@ -81,6 +81,13 @@
             box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
         }
 
+        /* Ocultar botón cuando el sidebar está abierto */
+        .sidebar.show ~ .hamburger-btn {
+            opacity: 0;
+            visibility: hidden;
+            transform: scale(0.8);
+        }
+
         /* ✅ NUEVO: Cuadro azul pequeño con las 3 líneas */
         .cuadro-azul-pequeno {
             background: linear-gradient(135deg, #3b82f6, #2563eb);
@@ -93,6 +100,8 @@
             max-width: 300px;
             margin-left: 80px; /* Espacio para el botón hamburguesa */
             margin-top: 20px;
+            position: relative;
+            z-index: 999;
         }
 
         .linea-dato {
@@ -297,7 +306,7 @@
     </style>
 </head>
 <body>
-    <!-- ✅ NUEVO: Botón hamburguesa pequeño al lado izquierdo -->
+    <!-- ✅ NUEVO: Botón hamburguesa fijo que desaparece al abrir menú -->
     <button class="hamburger-btn d-md-none" id="mobileMenuToggle">
         <i class="fas fa-bars"></i>
     </button>
