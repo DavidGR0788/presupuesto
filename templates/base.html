@@ -55,6 +55,33 @@
             color: white;
         }
 
+        /* ✅ SOLUCIÓN 1: Color del navbar móvil igual al sidebar */
+        .navbar-dark.bg-dark {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+            border-bottom: none;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .navbar-dark .navbar-toggler {
+            border-color: rgba(255,255,255,0.5);
+        }
+
+        .navbar-dark .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        /* ✅ SOLUCIÓN 2: Ajustar padding del main para títulos */
+        main {
+            padding-top: 1rem;
+        }
+
+        .page-header {
+            background: white;
+            padding: 1rem 0;
+            margin: -1rem -1.5rem 1.5rem -1.5rem;
+            border-bottom: 1px solid #dee2e6;
+        }
+
         /* ✅ CORREGIDO: Estilos responsive para móviles */
         @media (max-width: 767.98px) {
             .sidebar {
@@ -79,7 +106,38 @@
             
             main {
                 margin-top: 56px; /* Compensar altura del navbar */
-                padding-top: 15px;
+                padding-top: 0.5rem;
+            }
+
+            /* ✅ SOLUCIÓN: Ajustar header en móvil */
+            .page-header {
+                margin: 0 -1rem 1rem -1rem;
+                padding: 0.75rem 1rem;
+                position: sticky;
+                top: 56px;
+                z-index: 100;
+                background: white;
+            }
+
+            .d-flex.justify-content-between.align-items-center.pt-3.pb-2.mb-3.border-bottom {
+                flex-direction: column;
+                align-items: flex-start !important;
+                padding: 1rem !important;
+                margin: 0 -1rem 1rem -1rem !important;
+                background: white;
+                position: sticky;
+                top: 56px;
+                z-index: 100;
+            }
+
+            .d-flex.justify-content-between.align-items-center.pt-3.pb-2.mb-3.border-bottom h1.h2 {
+                margin-bottom: 0.5rem !important;
+                font-size: 1.5rem !important;
+            }
+
+            .btn-toolbar {
+                width: 100%;
+                justify-content: space-between !important;
             }
             
             /* Asegurar que las cards se vean bien en móviles */
@@ -119,6 +177,16 @@
             .sidebar-overlay {
                 display: none !important;
             }
+
+            /* ✅ SOLUCIÓN: Ajustar header en desktop */
+            .d-flex.justify-content-between.align-items-center.pt-3.pb-2.mb-3.border-bottom {
+                background: white;
+                position: sticky;
+                top: 0;
+                z-index: 100;
+                margin: -1.5rem -1.5rem 1.5rem -1.5rem;
+                padding: 1rem 1.5rem;
+            }
         }
 
         /* Mejoras para tablets */
@@ -130,6 +198,10 @@
             .sidebar .nav-link {
                 padding: 10px 15px;
                 font-size: 0.9rem;
+            }
+
+            .d-flex.justify-content-between.align-items-center.pt-3.pb-2.mb-3.border-bottom h1.h2 {
+                font-size: 1.4rem !important;
             }
         }
     </style>
