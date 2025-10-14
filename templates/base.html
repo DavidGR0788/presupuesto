@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
-    <!-- ✅ NUEVO: Favicon del marranito (Font Awesome piggy-bank) -->
+    <!-- ✅ Favicon del marranito -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 576 512'><!--! Font Awesome Free 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2023 Fonticons, Inc. --><path fill='%23667eea' d='M400 96l0 .7c-5.3-.4-10.6-.7-16-.7H256c-16.5 0-32.5 2.1-47.8 6c-.1-2-.2-4-.2-6c0-53 43-96 96-96s96 43 96 96zm-16 32c3.5 0 7 .1 10.4 .3c4.2 .3 8.4 .7 12.6 1.3C424.6 109.1 450.8 96 480 96h32l-18.8 75.1c15.8 14.8 28.7 32.8 37.5 52.9H544c17.7 0 32 14.3 32 32v96c0 17.7-14.3 32-32 32H512c-9.1 12.1-19.9 22.9-32 32v64c0 17.7-14.3 32-32 32H416c-17.7 0-32-14.3-32-32V448H256v32c0 17.7-14.3 32-32 32H192c-17.7 0-32-14.3-32-32V416c-34.9-26.2-58.7-66.3-63.2-112H68c-37.6 0-68-30.4-68-68s30.4-68 68-68h4c13.3 0 24 10.7 24 24s-10.7 24-24 24H68c-11 0-20 9-20 20s9 20 20 20H99.2c12.1-59.8 57.7-107.5 116.3-122.8c12.9-3.4 26.5-5.2 40.5-5.2H384zm64 136a24 24 0 1 0 -48 0 24 24 0 1 0 48 0z'/></svg>" type="image/svg+xml">
     
     <title>{% block title %}🐖 Presupuesto Personal{% endblock %}</title>
@@ -53,6 +53,40 @@
         .admin-card {
             background: linear-gradient(135deg, #8b5cf6, #7c3aed);
             color: white;
+        }
+
+        /* ✅ NUEVO: Estilo para el cuadro azul con las 3 líneas */
+        .cuadro-azul {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border-radius: 15px;
+            padding: 25px;
+            color: white;
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3);
+            margin-bottom: 25px;
+            border: none;
+        }
+
+        .linea-dato {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .linea-dato:last-child {
+            border-bottom: none;
+        }
+
+        .titulo-linea {
+            font-size: 0.95rem;
+            font-weight: 500;
+            opacity: 0.9;
+        }
+
+        .valor-linea {
+            font-size: 1.3rem;
+            font-weight: 700;
         }
 
         /* ✅ SOLUCIÓN 1: Navbar móvil minimalista - solo botón hamburguesa */
@@ -156,6 +190,20 @@
 
             .card h3 {
                 font-size: 1.25rem;
+            }
+
+            /* ✅ NUEVO: Ajustes para el cuadro azul en móviles */
+            .cuadro-azul {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+
+            .titulo-linea {
+                font-size: 0.9rem;
+            }
+
+            .valor-linea {
+                font-size: 1.2rem;
             }
             
             /* Overlay para cuando el menú está abierto - CORREGIDO */
@@ -319,7 +367,28 @@
 
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 bg-light" style="min-height: 100vh;">
-                {% block content %}{% endblock %}
+                {% block content %}
+                <!-- ✅ NUEVO: Cuadro azul con las 3 líneas -->
+                <div class="container mt-4">
+                    <div class="cuadro-azul">
+                        <div class="linea-dato">
+                            <span class="titulo-linea">INGRESOS TOTALES</span>
+                            <span class="valor-linea">$0</span>
+                        </div>
+                        <div class="linea-dato">
+                            <span class="titulo-linea">GASTOS TOTALES</span>
+                            <span class="valor-linea">$0</span>
+                        </div>
+                        <div class="linea-dato">
+                            <span class="titulo-linea">SALDO ACTUAL</span>
+                            <span class="valor-linea">$0</span>
+                        </div>
+                    </div>
+                    
+                    <!-- El resto del contenido de la aplicación se mantiene igual -->
+                    {% block main_content %}{% endblock %}
+                </div>
+                {% endblock %}
             </main>
         </div>
     </div>
