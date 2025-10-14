@@ -55,7 +55,7 @@
             color: white;
         }
 
-        /* ✅ NUEVO: Botón hamburguesa fijo que desaparece al abrir menú */
+        /* ✅ CORREGIDO: Botón hamburguesa fijo que desaparece al abrir menú */
         .hamburger-btn {
             position: fixed;
             top: 20px;
@@ -81,11 +81,9 @@
             box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
         }
 
-        /* Ocultar botón cuando el sidebar está abierto */
-        .sidebar.show ~ .hamburger-btn {
-            opacity: 0;
-            visibility: hidden;
-            transform: scale(0.8);
+        /* ✅ CORREGIDO: Ocultar botón cuando el sidebar está abierto */
+        .sidebar.show + .hamburger-btn {
+            display: none !important;
         }
 
         /* ✅ NUEVO: Cuadro azul pequeño con las 3 líneas */
@@ -460,6 +458,13 @@
                 if (overlay) {
                     overlay.classList.toggle('show');
                 }
+                
+                // ✅ CORREGIDO: Ocultar/mostrar botón hamburguesa
+                if (sidebar.classList.contains('show')) {
+                    menuToggle.style.display = 'none';
+                } else {
+                    menuToggle.style.display = 'flex';
+                }
             });
             
             // Cerrar menú al hacer clic en el overlay
@@ -467,6 +472,8 @@
                 overlay.addEventListener('click', function() {
                     sidebar.classList.remove('show');
                     overlay.classList.remove('show');
+                    // Mostrar botón hamburguesa al cerrar menú
+                    menuToggle.style.display = 'flex';
                 });
             }
             
@@ -478,6 +485,8 @@
                         if (overlay) {
                             overlay.classList.remove('show');
                         }
+                        // Mostrar botón hamburguesa al cerrar menú
+                        menuToggle.style.display = 'flex';
                     }
                 });
             });
@@ -489,6 +498,9 @@
                     if (overlay) {
                         overlay.classList.remove('show');
                     }
+                    menuToggle.style.display = 'none';
+                } else {
+                    menuToggle.style.display = 'flex';
                 }
             });
             
@@ -499,9 +511,6 @@
         }
     });
     </script>
-    
-    <!-- Scripts adicionales se mantienen igual -->
-    <!-- ... resto de los scripts ... -->
     
     {% block scripts %}
     <script>
