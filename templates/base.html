@@ -55,31 +55,42 @@
             color: white;
         }
 
-        /* ✅ SOLUCIÓN 1: Color del navbar móvil igual al sidebar */
-        .navbar-dark.bg-dark {
+        /* ✅ SOLUCIÓN 1: Navbar móvil minimalista - solo botón hamburguesa */
+        .mobile-navbar {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
             border-bottom: none;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            height: 56px;
+            padding: 0 1rem;
         }
 
-        .navbar-dark .navbar-toggler {
-            border-color: rgba(255,255,255,0.5);
+        .mobile-navbar .navbar-toggler {
+            border: none;
+            padding: 0.25rem;
+            margin: 0;
         }
 
-        .navbar-dark .navbar-toggler-icon {
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        .mobile-navbar .navbar-toggler:focus {
+            box-shadow: none;
         }
 
-        /* ✅ SOLUCIÓN 2: Ajustar padding del main para títulos */
+        .mobile-navbar .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28255, 255, 255, 0.9%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+
+        /* ✅ SOLUCIÓN 2: Quitar sticky headers y ajustar títulos */
         main {
             padding-top: 1rem;
         }
 
-        .page-header {
+        /* Quitar todos los estilos sticky */
+        .d-flex.justify-content-between.align-items-center.pt-3.pb-2.mb-3.border-bottom {
             background: white;
-            padding: 1rem 0;
-            margin: -1rem -1.5rem 1.5rem -1.5rem;
-            border-bottom: 1px solid #dee2e6;
+            margin: 0 0 1.5rem 0 !important;
+            padding: 1rem 0 !important;
+            border-bottom: 1px solid #dee2e6 !important;
+            position: static !important;
         }
 
         /* ✅ CORREGIDO: Estilos responsive para móviles */
@@ -100,34 +111,17 @@
                 transform: translateX(0);
             }
             
-            .navbar-brand {
-                font-size: 1.1rem;
-            }
-            
             main {
                 margin-top: 56px; /* Compensar altura del navbar */
-                padding-top: 0.5rem;
+                padding-top: 1rem;
             }
 
-            /* ✅ SOLUCIÓN: Ajustar header en móvil */
-            .page-header {
-                margin: 0 -1rem 1rem -1rem;
-                padding: 0.75rem 1rem;
-                position: sticky;
-                top: 56px;
-                z-index: 100;
-                background: white;
-            }
-
+            /* Ajustar headers en móvil */
             .d-flex.justify-content-between.align-items-center.pt-3.pb-2.mb-3.border-bottom {
                 flex-direction: column;
                 align-items: flex-start !important;
-                padding: 1rem !important;
-                margin: 0 -1rem 1rem -1rem !important;
-                background: white;
-                position: sticky;
-                top: 56px;
-                z-index: 100;
+                padding: 1rem 0 !important;
+                margin: 0 0 1rem 0 !important;
             }
 
             .d-flex.justify-content-between.align-items-center.pt-3.pb-2.mb-3.border-bottom h1.h2 {
@@ -165,6 +159,13 @@
             .sidebar:not(.show) {
                 display: none !important;
             }
+
+            /* Asegurar que el botón cerrar sesión sea visible */
+            .sidebar .btn-outline-light {
+                white-space: nowrap;
+                overflow: visible;
+                text-overflow: clip;
+            }
         }
 
         /* Para desktop: mostrar siempre el sidebar */
@@ -176,16 +177,6 @@
             
             .sidebar-overlay {
                 display: none !important;
-            }
-
-            /* ✅ SOLUCIÓN: Ajustar header en desktop */
-            .d-flex.justify-content-between.align-items-center.pt-3.pb-2.mb-3.border-bottom {
-                background: white;
-                position: sticky;
-                top: 0;
-                z-index: 100;
-                margin: -1.5rem -1.5rem 1.5rem -1.5rem;
-                padding: 1rem 1.5rem;
             }
         }
 
@@ -199,25 +190,18 @@
                 padding: 10px 15px;
                 font-size: 0.9rem;
             }
-
-            .d-flex.justify-content-between.align-items-center.pt-3.pb-2.mb-3.border-bottom h1.h2 {
-                font-size: 1.4rem !important;
-            }
         }
     </style>
 </head>
 <body>
-    <!-- ✅ CORREGIDO: Navbar para móviles -->
+    <!-- ✅ CORREGIDO: Navbar móvil minimalista - solo botón hamburguesa -->
     {% if session.user_id %}
-    <nav class="navbar navbar-dark bg-dark d-md-none fixed-top" style="z-index: 1001;">
-        <div class="container-fluid">
+    <nav class="navbar navbar-dark mobile-navbar d-md-none fixed-top" style="z-index: 1001;">
+        <div class="container-fluid justify-content-start">
             <button class="navbar-toggler" type="button" id="mobileMenuToggle">
                 <span class="navbar-toggler-icon"></span>
             </button>
-            <span class="navbar-brand mb-0 h1">
-                <i class="fas fa-piggy-bank me-2"></i>
-                Mi Presupuesto
-            </span>
+            <!-- Quitamos el título del navbar móvil -->
         </div>
     </nav>
     
@@ -299,8 +283,6 @@
                         <div class="text-white">
                             <small>Bienvenido,</small>
                             <h6>{{ session.user_name }}</h6>
-                            {% if session.user_role == 1 %}
-                            {% endif %}
                         </div>
                         <a href="{{ url_for('auth.logout') }}" class="btn btn-outline-light btn-sm w-100 mt-2">
                             <i class="fas fa-sign-out-alt me-1"></i>
@@ -344,13 +326,10 @@
         const menuToggle = document.getElementById('mobileMenuToggle');
         const overlay = document.getElementById('sidebarOverlay');
         
-        console.log('Script móvil cargado - Elementos:', {sidebar, menuToggle, overlay});
-        
         if (menuToggle && sidebar) {
             // Abrir/cerrar menú
             menuToggle.addEventListener('click', function(e) {
                 e.stopPropagation();
-                console.log('Botón hamburguesa clickeado');
                 sidebar.classList.toggle('show');
                 if (overlay) {
                     overlay.classList.toggle('show');
@@ -360,7 +339,6 @@
             // Cerrar menú al hacer clic en el overlay
             if (overlay) {
                 overlay.addEventListener('click', function() {
-                    console.log('Overlay clickeado - cerrando menú');
                     sidebar.classList.remove('show');
                     overlay.classList.remove('show');
                 });
@@ -370,7 +348,6 @@
             sidebar.querySelectorAll('.nav-link').forEach(link => {
                 link.addEventListener('click', function() {
                     if (window.innerWidth < 768) {
-                        console.log('Enlace clickeado - cerrando menú móvil');
                         sidebar.classList.remove('show');
                         if (overlay) {
                             overlay.classList.remove('show');
@@ -393,8 +370,6 @@
             sidebar.addEventListener('click', function(e) {
                 e.stopPropagation();
             });
-        } else {
-            console.error('Elementos no encontrados:', {sidebar, menuToggle});
         }
     });
     </script>
