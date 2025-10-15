@@ -3,14 +3,14 @@
 {% block title %}Ingresos - Presupuesto Personal{% endblock %}
 
 {% block content %}
-<!-- ✅ MEJORADO: Header con diseño mejorado -->
+<!-- ✅ MEJORADO: Header con diseño verde y mejor distribución -->
 <div class="header-improved mb-4">
-    <div class="row align-items-center">
-        <!-- Título principal más grande -->
-        <div class="col-12 col-md-8 mb-3 mb-md-0">
-            <div class="d-flex align-items-center">
-                <div class="title-container bg-primary rounded-4 p-3 shadow-sm">
-                    <h1 class="h1 mb-0 text-white">
+    <div class="row align-items-center g-3">
+        <!-- Título principal más grande en verde -->
+        <div class="col-12 col-md-8">
+            <div class="d-flex align-items-center justify-content-center justify-content-md-start">
+                <div class="title-container bg-success rounded-4 p-3 shadow-sm">
+                    <h1 class="h1 mb-0 text-white text-center text-md-start">
                         <i class="fas fa-money-bill-wave me-3"></i>
                         Mis Ingresos
                     </h1>
@@ -18,7 +18,7 @@
             </div>
         </div>
         
-        <!-- Controles de fecha y actualizar -->
+        <!-- Controles de fecha y actualizar más cerca -->
         <div class="col-12 col-md-4">
             <div class="controls-container bg-light rounded-4 p-3 shadow-sm">
                 <div class="row g-2 align-items-center">
@@ -27,7 +27,7 @@
                         <div class="date-selector">
                             <label class="form-label small text-muted mb-1 fw-bold">PERIODO</label>
                             <input type="month" 
-                                   class="form-control form-control-lg border-primary" 
+                                   class="form-control form-control-lg border-success" 
                                    id="mesSelector"
                                    value="{{ mes_seleccionado }}"
                                    onchange="cambiarMes(this.value)">
@@ -37,7 +37,7 @@
                     <div class="col-4">
                         <div class="update-button">
                             <label class="form-label small text-muted mb-1 fw-bold invisible">Acción</label>
-                            <button type="button" class="btn btn-primary btn-lg w-100" onclick="location.reload()">
+                            <button type="button" class="btn btn-success btn-lg w-100" onclick="location.reload()">
                                 <i class="fas fa-sync-alt"></i>
                             </button>
                         </div>
@@ -260,22 +260,23 @@
 </div>
 
 <style>
-/* ✅ NUEVO: Estilos para el header mejorado */
+/* ✅ MEJORADO: Estilos para el header verde y distribución optimizada */
 .header-improved {
     margin-top: 1rem;
 }
 
 .title-container {
-    background: linear-gradient(135deg, #3b82f6, #2563eb) !important;
+    background: linear-gradient(135deg, #10b981, #059669) !important;
     min-height: 80px;
     display: flex;
     align-items: center;
     transition: all 0.3s ease;
+    margin-right: -10px; /* ✅ Acerca los contenedores */
 }
 
 .title-container:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(59, 130, 246, 0.3) !important;
+    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3) !important;
 }
 
 .title-container h1 {
@@ -290,10 +291,11 @@
     min-height: 80px;
     display: flex;
     align-items: center;
+    margin-left: -10px; /* ✅ Acerca los contenedores */
 }
 
 .controls-container:hover {
-    border-color: #3b82f6;
+    border-color: #10b981;
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
 
@@ -301,11 +303,19 @@
     font-size: 1rem;
     font-weight: 600;
     padding: 0.5rem 1rem;
+    border-color: #10b981 !important;
 }
 
 .update-button .btn-lg {
     padding: 0.5rem;
     font-size: 1.1rem;
+    background: linear-gradient(135deg, #10b981, #059669);
+    border: none;
+}
+
+.update-button .btn-lg:hover {
+    background: linear-gradient(135deg, #059669, #047857);
+    transform: scale(1.05);
 }
 
 /* ✅ NUEVO: Estilos para reorganización móvil */
@@ -341,7 +351,7 @@
     }
 }
 
-/* ✅ MEJORADO: Estilos responsive para header */
+/* ✅ MEJORADO: Estilos responsive para header - CENTRADO EN MÓVIL */
 @media (max-width: 767.98px) {
     .header-improved {
         margin-top: 0.5rem;
@@ -351,14 +361,19 @@
         min-height: 70px;
         text-align: center;
         justify-content: center;
+        margin-right: 0; /* ✅ Reset margin en móvil */
+        margin-bottom: 10px; /* ✅ Espacio entre contenedores en móvil */
     }
     
     .title-container h1 {
         font-size: 1.5rem;
+        text-align: center !important; /* ✅ Forzar centrado en móvil */
     }
     
     .controls-container {
         min-height: auto;
+        margin-left: 0; /* ✅ Reset margin en móvil */
+        text-align: center;
     }
     
     .date-selector .form-control-lg {
@@ -369,6 +384,15 @@
     .update-button .btn-lg {
         padding: 0.4rem;
         font-size: 1rem;
+    }
+    
+    /* ✅ Asegurar que todo esté centrado en móvil */
+    .d-flex.align-items-center.justify-content-center.justify-content-md-start {
+        justify-content: center !important;
+    }
+    
+    .text-center.text-md-start {
+        text-align: center !important;
     }
 }
 
@@ -402,6 +426,15 @@
     .title-container h1 {
         font-size: 1.75rem;
     }
+    
+    /* ✅ Ajustar márgenes para tablets */
+    .title-container {
+        margin-right: -5px;
+    }
+    
+    .controls-container {
+        margin-left: -5px;
+    }
 }
 
 /* Mejoras para pantallas grandes */
@@ -416,6 +449,27 @@
     
     .controls-container {
         min-height: 90px;
+    }
+    
+    /* ✅ Ajustar márgenes para desktop */
+    .title-container {
+        margin-right: -15px;
+    }
+    
+    .controls-container {
+        margin-left: -15px;
+    }
+}
+
+/* ✅ Asegurar que el título esté siempre centrado en móvil */
+@media (max-width: 767.98px) {
+    .title-container h1.text-center.text-md-start {
+        text-align: center !important;
+        width: 100%;
+    }
+    
+    .title-container .d-flex {
+        justify-content: center !important;
     }
 }
 </style>
