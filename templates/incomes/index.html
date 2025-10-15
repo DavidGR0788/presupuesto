@@ -3,47 +3,28 @@
 {% block title %}Ingresos - Presupuesto Personal{% endblock %}
 
 {% block content %}
-<!-- ✅ MEJORADO: Header con diseño verde y mejor distribución -->
-<div class="header-improved mb-4">
-    <div class="row align-items-center g-3">
-        <!-- Título principal más grande en verde -->
-        <div class="col-12 col-md-8">
-            <div class="d-flex align-items-center justify-content-center justify-content-md-start">
-                <div class="title-container bg-success rounded-4 p-3 shadow-sm">
-                    <h1 class="h1 mb-0 text-white text-center text-md-start">
-                        <i class="fas fa-money-bill-wave me-3"></i>
-                        Mis Ingresos
-                    </h1>
-                </div>
+<!-- ✅ MODIFICADO: Header centrado en móvil -->
+<div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+    <div class="col-12 col-md-6 text-center text-md-start mb-2 mb-md-0">
+        <h1 class="h2">
+            <i class="fas fa-money-bill-wave me-2"></i>
+            Mis Ingresos
+        </h1>
+    </div>
+    <div class="col-12 col-md-6 text-center text-md-end">
+        <div class="btn-toolbar justify-content-center justify-content-md-end">
+            <!-- Selector de Mes/Año -->
+            <div class="me-2">
+                <input type="month" 
+                       class="form-control form-control-sm" 
+                       id="mesSelector"
+                       value="{{ mes_seleccionado }}"
+                       onchange="cambiarMes(this.value)">
             </div>
-        </div>
-        
-        <!-- Controles de fecha y actualizar más cerca -->
-        <div class="col-12 col-md-4">
-            <div class="controls-container bg-light rounded-4 p-3 shadow-sm">
-                <div class="row g-2 align-items-center">
-                    <!-- Selector de fecha -->
-                    <div class="col-8">
-                        <div class="date-selector">
-                            <label class="form-label small text-muted mb-1 fw-bold">PERIODO</label>
-                            <input type="month" 
-                                   class="form-control form-control-lg border-success" 
-                                   id="mesSelector"
-                                   value="{{ mes_seleccionado }}"
-                                   onchange="cambiarMes(this.value)">
-                        </div>
-                    </div>
-                    <!-- Botón actualizar -->
-                    <div class="col-4">
-                        <div class="update-button">
-                            <label class="form-label small text-muted mb-1 fw-bold invisible">Acción</label>
-                            <button type="button" class="btn btn-success btn-lg w-100" onclick="location.reload()">
-                                <i class="fas fa-sync-alt"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.reload()">
+                <i class="fas fa-sync-alt me-1"></i>
+                Actualizar
+            </button>
         </div>
     </div>
 </div>
@@ -260,64 +241,6 @@
 </div>
 
 <style>
-/* ✅ MEJORADO: Estilos para el header verde y distribución optimizada */
-.header-improved {
-    margin-top: 1rem;
-}
-
-.title-container {
-    background: linear-gradient(135deg, #10b981, #059669) !important;
-    min-height: 80px;
-    display: flex;
-    align-items: center;
-    transition: all 0.3s ease;
-    margin-right: -10px; /* ✅ Acerca los contenedores */
-}
-
-.title-container:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 8px 25px rgba(16, 185, 129, 0.3) !important;
-}
-
-.title-container h1 {
-    font-size: 2rem;
-    font-weight: 700;
-    text-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.controls-container {
-    border: 2px solid #e9ecef;
-    transition: all 0.3s ease;
-    min-height: 80px;
-    display: flex;
-    align-items: center;
-    margin-left: -10px; /* ✅ Acerca los contenedores */
-}
-
-.controls-container:hover {
-    border-color: #10b981;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-
-.date-selector .form-control-lg {
-    font-size: 1rem;
-    font-weight: 600;
-    padding: 0.5rem 1rem;
-    border-color: #10b981 !important;
-}
-
-.update-button .btn-lg {
-    padding: 0.5rem;
-    font-size: 1.1rem;
-    background: linear-gradient(135deg, #10b981, #059669);
-    border: none;
-}
-
-.update-button .btn-lg:hover {
-    background: linear-gradient(135deg, #059669, #047857);
-    transform: scale(1.05);
-}
-
 /* ✅ NUEVO: Estilos para reorganización móvil */
 .income-container {
     display: flex;
@@ -351,48 +274,26 @@
     }
 }
 
-/* ✅ MEJORADO: Estilos responsive para header - CENTRADO EN MÓVIL */
+/* ✅ NUEVO: Estilos para centrar header en móvil */
 @media (max-width: 767.98px) {
-    .header-improved {
-        margin-top: 0.5rem;
-    }
-    
-    .title-container {
-        min-height: 70px;
-        text-align: center;
-        justify-content: center;
-        margin-right: 0; /* ✅ Reset margin en móvil */
-        margin-bottom: 10px; /* ✅ Espacio entre contenedores en móvil */
-    }
-    
-    .title-container h1 {
-        font-size: 1.5rem;
-        text-align: center !important; /* ✅ Forzar centrado en móvil */
-    }
-    
-    .controls-container {
-        min-height: auto;
-        margin-left: 0; /* ✅ Reset margin en móvil */
+    .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom {
+        flex-direction: column;
         text-align: center;
     }
     
-    .date-selector .form-control-lg {
-        font-size: 0.9rem;
-        padding: 0.4rem 0.8rem;
+    .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom h1.h2 {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 1rem;
     }
     
-    .update-button .btn-lg {
-        padding: 0.4rem;
-        font-size: 1rem;
-    }
-    
-    /* ✅ Asegurar que todo esté centrado en móvil */
-    .d-flex.align-items-center.justify-content-center.justify-content-md-start {
+    .btn-toolbar {
+        width: 100%;
         justify-content: center !important;
     }
     
-    .text-center.text-md-start {
-        text-align: center !important;
+    .btn-toolbar .me-2 {
+        margin-right: 0.5rem !important;
     }
 }
 
@@ -421,55 +322,6 @@
 @media (min-width: 768px) and (max-width: 991.98px) {
     .income-form-section {
         flex: 0 0 350px;
-    }
-    
-    .title-container h1 {
-        font-size: 1.75rem;
-    }
-    
-    /* ✅ Ajustar márgenes para tablets */
-    .title-container {
-        margin-right: -5px;
-    }
-    
-    .controls-container {
-        margin-left: -5px;
-    }
-}
-
-/* Mejoras para pantallas grandes */
-@media (min-width: 1200px) {
-    .title-container h1 {
-        font-size: 2.25rem;
-    }
-    
-    .title-container {
-        min-height: 90px;
-    }
-    
-    .controls-container {
-        min-height: 90px;
-    }
-    
-    /* ✅ Ajustar márgenes para desktop */
-    .title-container {
-        margin-right: -15px;
-    }
-    
-    .controls-container {
-        margin-left: -15px;
-    }
-}
-
-/* ✅ Asegurar que el título esté siempre centrado en móvil */
-@media (max-width: 767.98px) {
-    .title-container h1.text-center.text-md-start {
-        text-align: center !important;
-        width: 100%;
-    }
-    
-    .title-container .d-flex {
-        justify-content: center !important;
     }
 }
 </style>
