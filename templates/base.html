@@ -65,9 +65,9 @@
             color: white;
         }
 
-        /* ✅ CORREGIDO: Botón hamburguesa completamente fijo */
+        /* ✅ CORREGIDO: Botón hamburguesa en posición normal (no fijo) */
         .hamburger-btn {
-            position: fixed !important;
+            position: absolute !important;
             top: 20px !important;
             left: 20px !important;
             width: 45px;
@@ -174,6 +174,11 @@
                 width: 40px;
                 height: 40px;
                 font-size: 1.1rem;
+            }
+
+            /* Ocultar botón cuando el menú está abierto */
+            .sidebar.show ~ .hamburger-btn {
+                display: none !important;
             }
 
             .cuadro-azul-pequeno {
@@ -294,7 +299,7 @@
     </style>
 </head>
 <body>
-    <!-- ✅ Botón hamburguesa completamente fijo -->
+    <!-- ✅ Botón hamburguesa en posición normal -->
     <button class="hamburger-btn d-md-none" id="mobileMenuToggle">
         <i class="fas fa-bars"></i>
     </button>
@@ -442,6 +447,7 @@
                     overlay.classList.toggle('show');
                 }
                 
+                // Ocultar el botón cuando el menú está abierto
                 if (sidebar.classList.contains('show')) {
                     menuToggle.style.display = 'none';
                 } else {
