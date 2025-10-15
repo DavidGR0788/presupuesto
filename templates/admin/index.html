@@ -3,11 +3,14 @@
 {% block title %}Administración - Presupuesto Personal{% endblock %}
 
 {% block content %}
+<!-- ✅ MEJORADO: Header centrado en móvil -->
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">
-        <i class="fas fa-cog me-2"></i>
-        Panel de Administración
-    </h1>
+    <div class="col-12 text-center text-md-start">
+        <h1 class="h2">
+            <i class="fas fa-cog me-2"></i>
+            Panel de Administración
+        </h1>
+    </div>
 </div>
 
 <!-- Tarjetas de resumen -->
@@ -41,9 +44,10 @@
     </div>
 </div>
 
-<!-- Lista de Usuarios -->
-<div class="row mb-4">
-    <div class="col-12">
+<!-- ✅ REORGANIZADO PARA MÓVIL: Contenedor principal -->
+<div class="admin-container">
+    <!-- Gestión de usuarios - PRIMERO EN MÓVIL -->
+    <div class="admin-users-section">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">
@@ -132,11 +136,9 @@
             </div>
         </div>
     </div>
-</div>
 
-<!-- Contenido principal -->
-<div class="row">
-    <div class="col-12">
+    <!-- Resumen del sistema - ÚLTIMO EN MÓVIL -->
+    <div class="admin-summary-section">
         <div class="card">
             <div class="card-header">
                 <h5 class="card-title mb-0">
@@ -281,6 +283,145 @@
     </div>
 </div>
 
+<style>
+/* ✅ NUEVO: Estilos para reorganización móvil */
+.admin-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.admin-users-section {
+    order: 1; /* Primero en móvil */
+}
+
+.admin-summary-section {
+    order: 2; /* Último en móvil */
+}
+
+/* Para desktop: mantener orden original (resumen primero) */
+@media (min-width: 992px) {
+    .admin-container {
+        flex-direction: row;
+    }
+    
+    .admin-users-section {
+        order: 2;
+        flex: 1;
+        margin-left: 20px;
+    }
+    
+    .admin-summary-section {
+        order: 1;
+        flex: 0 0 400px;
+    }
+}
+
+/* ✅ NUEVO: Estilos para centrar header en móvil */
+@media (max-width: 767.98px) {
+    .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom h1.h2 {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+    
+    /* Ajustar header de tarjeta de usuarios en móvil */
+    .card-header .d-flex {
+        flex-direction: column;
+        align-items: flex-start !important;
+        gap: 10px;
+    }
+    
+    .card-header .badge {
+        align-self: flex-start;
+    }
+}
+
+/* Mejoras para móviles */
+@media (max-width: 991.98px) {
+    .admin-container {
+        gap: 15px;
+    }
+    
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+    
+    .table th, .table td {
+        padding: 0.5rem;
+    }
+    
+    /* Mejorar botones en móvil */
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    /* Ajustar tarjetas de resumen en móvil */
+    .col-md-4 {
+        margin-bottom: 1rem;
+    }
+    
+    /* Ajustar grid de resumen del sistema en móvil */
+    .admin-summary-section .col-md-6 {
+        margin-bottom: 1rem;
+    }
+    
+    /* Optimizar tabla para móviles */
+    .table-responsive {
+        border: 1px solid #dee2e6;
+        border-radius: 0.375rem;
+    }
+}
+
+/* Mejoras para tablets */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .admin-summary-section {
+        flex: 0 0 350px;
+    }
+    
+    /* Ajustar tabla en tablets */
+    .table-responsive {
+        font-size: 0.8rem;
+    }
+}
+
+/* Ajustes específicos para admin */
+.admin-card {
+    background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+    color: white;
+    border: none;
+}
+
+.card.h-100 {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card.h-100:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+/* Mejorar visualización de badges en móvil */
+@media (max-width: 767.98px) {
+    .badge {
+        font-size: 0.7rem;
+        padding: 0.25rem 0.5rem;
+    }
+}
+
+/* Ajustar modales para móviles */
+@media (max-width: 575.98px) {
+    .modal-dialog {
+        margin: 0.5rem;
+    }
+}
+</style>
 {% endblock %}
 
 {% block scripts %}
