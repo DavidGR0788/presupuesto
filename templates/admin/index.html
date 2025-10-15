@@ -13,7 +13,7 @@
     </div>
 </div>
 
-<!-- Tarjetas de resumen -->
+<!-- Tarjetas de resumen - SIEMPRE PRIMERO -->
 <div class="row mb-4">
     <div class="col-md-4 mb-3">
         <div class="card admin-card">
@@ -44,9 +44,9 @@
     </div>
 </div>
 
-<!-- ✅ REORGANIZADO PARA MÓVIL: Contenedor principal -->
-<div class="admin-container">
-    <!-- Gestión de usuarios - PRIMERO EN MÓVIL -->
+<!-- ✅ REORGANIZADO: Contenedor principal con orden específico -->
+<div class="admin-main-container">
+    <!-- Gestión de usuarios - SEGUNDO EN LAPTOP, PRIMERO EN MÓVIL -->
     <div class="admin-users-section">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
@@ -137,7 +137,7 @@
         </div>
     </div>
 
-    <!-- Resumen del sistema - ÚLTIMO EN MÓVIL -->
+    <!-- Resumen del sistema - TERCERO EN LAPTOP, SEGUNDO EN MÓVIL -->
     <div class="admin-summary-section">
         <div class="card">
             <div class="card-header">
@@ -284,36 +284,38 @@
 </div>
 
 <style>
-/* ✅ NUEVO: Estilos para reorganización móvil */
-.admin-container {
+/* ✅ CORREGIDO: Estilos para orden específico */
+.admin-main-container {
     display: flex;
     flex-direction: column;
     gap: 20px;
 }
 
 .admin-users-section {
-    order: 1; /* Primero en móvil */
+    order: 1; /* Primero en móvil, segundo en laptop */
 }
 
 .admin-summary-section {
-    order: 2; /* Último en móvil */
+    order: 2; /* Segundo en móvil, tercero en laptop */
 }
 
-/* Para desktop: mantener orden original (resumen primero) */
+/* Para laptop: mantener orden vertical (no usar flex row) */
 @media (min-width: 992px) {
-    .admin-container {
-        flex-direction: row;
+    .admin-main-container {
+        flex-direction: column; /* Mantener columna vertical */
     }
     
+    /* En laptop el orden es:
+       1. Cards de resumen (fuera del contenedor)
+       2. Gestión de usuarios (order: 1)
+       3. Resumen del sistema (order: 2)
+    */
     .admin-users-section {
-        order: 2;
-        flex: 1;
-        margin-left: 20px;
+        order: 1;
     }
     
     .admin-summary-section {
-        order: 1;
-        flex: 0 0 400px;
+        order: 2;
     }
 }
 
@@ -344,7 +346,7 @@
 
 /* Mejoras para móviles */
 @media (max-width: 991.98px) {
-    .admin-container {
+    .admin-main-container {
         gap: 15px;
     }
     
@@ -381,10 +383,6 @@
 
 /* Mejoras para tablets */
 @media (min-width: 768px) and (max-width: 991.98px) {
-    .admin-summary-section {
-        flex: 0 0 350px;
-    }
-    
     /* Ajustar tabla en tablets */
     .table-responsive {
         font-size: 0.8rem;
@@ -398,11 +396,11 @@
     border: none;
 }
 
-.card.h-100 {
+.card {
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.card.h-100:hover {
+.card:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 15px rgba(0,0,0,0.1);
 }
@@ -419,6 +417,14 @@
 @media (max-width: 575.98px) {
     .modal-dialog {
         margin: 0.5rem;
+    }
+}
+
+/* ✅ NUEVO: Asegurar que las secciones ocupen todo el ancho en laptop */
+@media (min-width: 992px) {
+    .admin-users-section,
+    .admin-summary-section {
+        width: 100%;
     }
 }
 </style>
