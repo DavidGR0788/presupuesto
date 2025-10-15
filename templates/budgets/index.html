@@ -3,16 +3,21 @@
 {% block title %}Presupuestos - Presupuesto Personal{% endblock %}
 
 {% block content %}
+<!-- ✅ MEJORADO: Header centrado en móvil -->
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">
-        <i class="fas fa-chart-pie me-2"></i>
-        Presupuestos
-    </h1>
-    <div class="btn-toolbar mb-2 mb-md-0">
-        <div class="btn-group me-2">
-            <button type="button" class="btn btn-sm btn-outline-secondary">
-                {{ current_month }}/{{ current_year }}
-            </button>
+    <div class="col-12 col-md-6 text-center text-md-start mb-2 mb-md-0">
+        <h1 class="h2">
+            <i class="fas fa-chart-pie me-2"></i>
+            Presupuestos
+        </h1>
+    </div>
+    <div class="col-12 col-md-6 text-center text-md-end">
+        <div class="btn-toolbar justify-content-center justify-content-md-end">
+            <div class="btn-group">
+                <button type="button" class="btn btn-sm btn-outline-secondary">
+                    {{ current_month }}/{{ current_year }}
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -53,77 +58,10 @@
     </div>
 </div>
 
-<div class="row">
-    <!-- Formulario para agregar presupuestos -->
-    <div class="col-lg-4 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-plus-circle me-2"></i>
-                    Agregar Presupuesto
-                </h5>
-            </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('budgets.add') }}" onsubmit="limpiarFormatosAntesDeEnviar()">
-                    <div class="mb-3">
-                        <label for="categoria_gasto_id" class="form-label">Categoría *</label>
-                        <select class="form-select" id="categoria_gasto_id" name="categoria_gasto_id" required>
-                            <option value="">Selecciona una categoría</option>
-                            {% for category in categories %}
-                            <option value="{{ category.id }}" data-color="{{ category.color }}">
-                                {{ category.icono }} {{ category.nombre }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                        {% if not categories %}
-                        <div class="form-text text-warning">
-                            Todas las categorías ya tienen presupuesto asignado.
-                        </div>
-                        {% endif %}
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="monto_maximo" class="form-label">Monto Máximo *</label>
-                        <input type="text" class="form-control formato-monto" id="monto_maximo" name="monto_maximo" 
-                               placeholder="0.00" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="mes_year" class="form-label">Mes y Año *</label>
-                        <input type="month" class="form-control" id="mes_year" name="mes_year" 
-                               value="{{ now.strftime('%Y-%m') }}" required>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary w-100" {% if not categories %}disabled{% endif %}>
-                        <i class="fas fa-save me-2"></i>
-                        Guardar Presupuesto
-                    </button>
-                </form>
-            </div>
-        </div>
-        
-        <!-- Información de ayuda -->
-        <div class="card mt-4">
-            <div class="card-header">
-                <h6 class="card-title mb-0">
-                    <i class="fas fa-info-circle me-2"></i>
-                    ¿Cómo funcionan los presupuestos?
-                </h6>
-            </div>
-            <div class="card-body">
-                <small class="text-muted">
-                    <ul class="list-unstyled">
-                        <li>✅ <strong>Verde:</strong> Menos del 70% usado</li>
-                        <li>🟡 <strong>Amarillo:</strong> 70% - 90% usado</li>
-                        <li>🔴 <strong>Rojo:</strong> Más del 90% usado</li>
-                    </ul>
-                </small>
-            </div>
-        </div>
-    </div>
-
-    <!-- Lista de presupuestos -->
-    <div class="col-lg-8">
+<!-- ✅ REORGANIZADO PARA MÓVIL: Contenedor principal -->
+<div class="budgets-container">
+    <!-- Lista de presupuestos - PRIMERO EN MÓVIL -->
+    <div class="budgets-list-section">
         <div class="card">
             <div class="card-header">
                 <h5 class="card-title mb-0">
@@ -214,6 +152,74 @@
             </div>
         </div>
     </div>
+
+    <!-- Formulario para agregar presupuestos - ÚLTIMO EN MÓVIL -->
+    <div class="budgets-form-section">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    Agregar Presupuesto
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('budgets.add') }}" onsubmit="limpiarFormatosAntesDeEnviar()">
+                    <div class="mb-3">
+                        <label for="categoria_gasto_id" class="form-label">Categoría *</label>
+                        <select class="form-select" id="categoria_gasto_id" name="categoria_gasto_id" required>
+                            <option value="">Selecciona una categoría</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}" data-color="{{ category.color }}">
+                                {{ category.icono }} {{ category.nombre }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        {% if not categories %}
+                        <div class="form-text text-warning">
+                            Todas las categorías ya tienen presupuesto asignado.
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="monto_maximo" class="form-label">Monto Máximo *</label>
+                        <input type="text" class="form-control formato-monto" id="monto_maximo" name="monto_maximo" 
+                               placeholder="0.00" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="mes_year" class="form-label">Mes y Año *</label>
+                        <input type="month" class="form-control" id="mes_year" name="mes_year" 
+                               value="{{ now.strftime('%Y-%m') }}" required>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100" {% if not categories %}disabled{% endif %}>
+                        <i class="fas fa-save me-2"></i>
+                        Guardar Presupuesto
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- Información de ayuda -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h6 class="card-title mb-0">
+                    <i class="fas fa-info-circle me-2"></i>
+                    ¿Cómo funcionan los presupuestos?
+                </h6>
+            </div>
+            <div class="card-body">
+                <small class="text-muted">
+                    <ul class="list-unstyled">
+                        <li>✅ <strong>Verde:</strong> Menos del 70% usado</li>
+                        <li>🟡 <strong>Amarillo:</strong> 70% - 90% usado</li>
+                        <li>🔴 <strong>Rojo:</strong> Más del 90% usado</li>
+                    </ul>
+                </small>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- Modal para editar presupuesto - COMPLETAMENTE EDITABLE -->
@@ -261,6 +267,106 @@
         </div>
     </div>
 </div>
+
+<style>
+/* ✅ NUEVO: Estilos para reorganización móvil */
+.budgets-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.budgets-list-section {
+    order: 1; /* Primero en móvil */
+}
+
+.budgets-form-section {
+    order: 2; /* Último en móvil */
+}
+
+/* Para desktop: mantener orden original (formulario primero) */
+@media (min-width: 992px) {
+    .budgets-container {
+        flex-direction: row;
+    }
+    
+    .budgets-list-section {
+        order: 2;
+        flex: 1;
+        margin-left: 20px;
+    }
+    
+    .budgets-form-section {
+        order: 1;
+        flex: 0 0 400px;
+    }
+}
+
+/* ✅ NUEVO: Estilos para centrar header en móvil */
+@media (max-width: 767.98px) {
+    .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom h1.h2 {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+    
+    .btn-toolbar {
+        width: 100%;
+        justify-content: center !important;
+    }
+    
+    .btn-group {
+        justify-content: center !important;
+    }
+}
+
+/* Mejoras para móviles */
+@media (max-width: 991.98px) {
+    .budgets-container {
+        gap: 15px;
+    }
+    
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+    
+    .table th, .table td {
+        padding: 0.5rem;
+    }
+    
+    /* Mejorar botones en móvil */
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    /* Ajustar tarjetas de resumen en móvil */
+    .col-md-3 {
+        margin-bottom: 1rem;
+    }
+}
+
+/* Mejoras para tablets */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .budgets-form-section {
+        flex: 0 0 350px;
+    }
+}
+
+/* Ajustes específicos para presupuestos */
+.nowrap {
+    white-space: nowrap;
+}
+
+.progress {
+    min-width: 80px;
+}
+</style>
 {% endblock %}
 
 {% block scripts %}
