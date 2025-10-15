@@ -3,11 +3,14 @@
 {% block title %}Ahorros - Presupuesto Personal{% endblock %}
 
 {% block content %}
+<!-- ✅ MEJORADO: Header centrado en móvil -->
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">
-        <i class="fas fa-piggy-bank me-2"></i>
-        Mis Ahorros
-    </h1>
+    <div class="col-12 text-center text-md-start">
+        <h1 class="h2">
+            <i class="fas fa-piggy-bank me-2"></i>
+            Mis Ahorros
+        </h1>
+    </div>
 </div>
 
 <!-- Resumen de Ahorros -->
@@ -46,53 +49,10 @@
     </div>
 </div>
 
-<div class="row">
-    <!-- Formulario para agregar metas de ahorro -->
-    <div class="col-lg-4 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-plus-circle me-2"></i>
-                    Nueva Meta de Ahorro
-                </h5>
-            </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('savings.add') }}" onsubmit="limpiarFormatosAntesDeEnviar()">
-                    <div class="mb-3">
-                        <label for="concepto" class="form-label">Concepto *</label>
-                        <input type="text" class="form-control" id="concepto" name="concepto" 
-                               placeholder="Ej: Viaje a la playa, Nuevo carro..." required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="meta_total" class="form-label">Meta Total *</label>
-                        <input type="text" class="form-control formato-monto" id="meta_total" name="meta_total" 
-                               placeholder="0.00" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="fecha_objetivo" class="form-label">Fecha Objetivo</label>
-                        <input type="date" class="form-control" id="fecha_objetivo" name="fecha_objetivo">
-                        <div class="form-text">Opcional. Si no especificas, se usará 3 meses desde hoy.</div>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="descripcion" class="form-label">Descripción</label>
-                        <textarea class="form-control" id="descripcion" name="descripcion" 
-                                  rows="3" placeholder="Detalles de tu meta..."></textarea>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary w-100">
-                        <i class="fas fa-save me-2"></i>
-                        Crear Meta
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Lista de metas de ahorro -->
-    <div class="col-lg-8">
+<!-- ✅ REORGANIZADO PARA MÓVIL: Contenedor principal -->
+<div class="savings-container">
+    <!-- Lista de metas de ahorro - PRIMERO EN MÓVIL -->
+    <div class="savings-list-section">
         <div class="card">
             <div class="card-header">
                 <h5 class="card-title mb-0">
@@ -232,9 +192,53 @@
                 <div class="text-center text-muted py-4">
                     <i class="fas fa-piggy-bank fa-3x mb-3"></i>
                     <p>No tienes metas de ahorro activas</p>
-                    <p class="small">Crea tu primera meta usando el formulario a la izquierda</p>
+                    <p class="small">Crea tu primera meta usando el formulario</p>
                 </div>
                 {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario para agregar metas de ahorro - ÚLTIMO EN MÓVIL -->
+    <div class="savings-form-section">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    Nueva Meta de Ahorro
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('savings.add') }}" onsubmit="limpiarFormatosAntesDeEnviar()">
+                    <div class="mb-3">
+                        <label for="concepto" class="form-label">Concepto *</label>
+                        <input type="text" class="form-control" id="concepto" name="concepto" 
+                               placeholder="Ej: Viaje a la playa, Nuevo carro..." required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="meta_total" class="form-label">Meta Total *</label>
+                        <input type="text" class="form-control formato-monto" id="meta_total" name="meta_total" 
+                               placeholder="0.00" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="fecha_objetivo" class="form-label">Fecha Objetivo</label>
+                        <input type="date" class="form-control" id="fecha_objetivo" name="fecha_objetivo">
+                        <div class="form-text">Opcional. Si no especificas, se usará 3 meses desde hoy.</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="descripcion" name="descripcion" 
+                                  rows="3" placeholder="Detalles de tu meta..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">
+                        <i class="fas fa-save me-2"></i>
+                        Crear Meta
+                    </button>
+                </form>
             </div>
         </div>
     </div>
@@ -276,6 +280,119 @@
         </div>
     </div>
 </div>
+
+<style>
+/* ✅ NUEVO: Estilos para reorganización móvil */
+.savings-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.savings-list-section {
+    order: 1; /* Primero en móvil */
+}
+
+.savings-form-section {
+    order: 2; /* Último en móvil */
+}
+
+/* Para desktop: mantener orden original (formulario primero) */
+@media (min-width: 992px) {
+    .savings-container {
+        flex-direction: row;
+    }
+    
+    .savings-list-section {
+        order: 2;
+        flex: 1;
+        margin-left: 20px;
+    }
+    
+    .savings-form-section {
+        order: 1;
+        flex: 0 0 400px;
+    }
+}
+
+/* ✅ NUEVO: Estilos para centrar header en móvil */
+@media (max-width: 767.98px) {
+    .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom h1.h2 {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+}
+
+/* Mejoras para móviles */
+@media (max-width: 991.98px) {
+    .savings-container {
+        gap: 15px;
+    }
+    
+    /* Ajustar tarjetas de metas en móvil */
+    .col-md-6 {
+        margin-bottom: 1rem;
+    }
+    
+    /* Mejorar botones en móvil */
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+    
+    /* Ajustar tarjetas de resumen en móvil */
+    .col-md-3 {
+        margin-bottom: 1rem;
+    }
+    
+    /* Ajustar formularios en móvil */
+    .add-money-form {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .add-money-form input {
+        margin-right: 0 !important;
+    }
+}
+
+/* Mejoras para tablets */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .savings-form-section {
+        flex: 0 0 350px;
+    }
+    
+    /* Ajustar grid de metas en tablet */
+    .col-md-6 {
+        flex: 0 0 100%;
+        max-width: 100%;
+    }
+}
+
+/* Ajustes específicos para ahorros */
+.card.h-100 {
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card.h-100:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+}
+
+.progress {
+    min-width: 80px;
+}
+
+.btn-group.w-100 .btn {
+    flex: 1;
+}
+</style>
 {% endblock %}
 
 {% block scripts %}
