@@ -3,24 +3,29 @@
 {% block title %}Gastos - Presupuesto Personal{% endblock %}
 
 {% block content %}
+<!-- ✅ MEJORADO: Header centrado en móvil -->
 <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
-    <h1 class="h2">
-        <i class="fas fa-receipt me-2"></i>
-        Mis Gastos
-    </h1>
-    <div class="btn-toolbar mb-2 mb-md-0">
-        <!-- Selector de Mes/Año -->
-        <div class="me-2">
-            <input type="month" 
-                   class="form-control form-control-sm" 
-                   id="mesSelector"
-                   value="{{ mes_seleccionado }}"
-                   onchange="cambiarMes(this.value)">
+    <div class="col-12 col-md-6 text-center text-md-start mb-2 mb-md-0">
+        <h1 class="h2">
+            <i class="fas fa-receipt me-2"></i>
+            Mis Gastos
+        </h1>
+    </div>
+    <div class="col-12 col-md-6 text-center text-md-end">
+        <div class="btn-toolbar justify-content-center justify-content-md-end">
+            <!-- Selector de Mes/Año -->
+            <div class="me-2">
+                <input type="month" 
+                       class="form-control form-control-sm" 
+                       id="mesSelector"
+                       value="{{ mes_seleccionado }}"
+                       onchange="cambiarMes(this.value)">
+            </div>
+            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.reload()">
+                <i class="fas fa-sync-alt me-1"></i>
+                Actualizar
+            </button>
         </div>
-        <button type="button" class="btn btn-sm btn-outline-secondary" onclick="location.reload()">
-            <i class="fas fa-sync-alt me-1"></i>
-            Actualizar
-        </button>
     </div>
 </div>
 
@@ -55,70 +60,10 @@
     </div>
 </div>
 
-<div class="row">
-    <!-- Formulario para agregar gastos -->
-    <div class="col-lg-4 mb-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="card-title mb-0">
-                    <i class="fas fa-plus-circle me-2"></i>
-                    Agregar Gasto
-                </h5>
-            </div>
-            <div class="card-body">
-                <form method="POST" action="{{ url_for('expenses.add') }}" onsubmit="limpiarFormatosAntesDeEnviar()">
-                    <div class="mb-3">
-                        <label for="concepto" class="form-label">Concepto *</label>
-                        <input type="text" class="form-control" id="concepto" name="concepto" 
-                               placeholder="¿En qué gastaste?" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="monto" class="form-label">Monto *</label>
-                        <input type="text" class="form-control formato-monto" id="monto" name="monto" 
-                               placeholder="0.00" required>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="categoria_id" class="form-label">Categoría *</label>
-                        <select class="form-select" id="categoria_id" name="categoria_id" required>
-                            <option value="">Selecciona una categoría</option>
-                            {% for category in categories %}
-                            <option value="{{ category.id }}" data-color="{{ category.color }}">
-                                {{ category.icono }} {{ category.nombre }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="fecha" class="form-label">Fecha *</label>
-                        <input type="date" class="form-control" id="fecha" name="fecha" 
-                               value="{{ now.strftime('%Y-%m-%d') }}" required>
-                    </div>
-
-                    <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="esencial" name="esencial" checked>
-                        <label class="form-check-label" for="esencial">Gasto esencial</label>
-                    </div>
-
-                    <div class="mb-3">
-                        <label for="descripcion" class="form-label">Descripción</label>
-                        <textarea class="form-control" id="descripcion" name="descripcion" 
-                                  rows="3" placeholder="Detalles adicionales..."></textarea>
-                    </div>
-
-                    <button type="submit" class="btn btn-danger w-100">
-                        <i class="fas fa-save me-2"></i>
-                        Guardar Gasto
-                    </button>
-                </form>
-            </div>
-        </div>
-    </div>
-
-    <!-- Lista de gastos -->
-    <div class="col-lg-8">
+<!-- ✅ REORGANIZADO PARA MÓVIL: Contenedor principal -->
+<div class="expenses-container">
+    <!-- Lista de gastos - PRIMERO EN MÓVIL -->
+    <div class="expenses-list-section">
         <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">
@@ -186,9 +131,70 @@
                 <div class="text-center text-muted py-4">
                     <i class="fas fa-receipt fa-3x mb-3"></i>
                     <p>No hay gastos registrados en {{ mes_seleccionado[5:7] }}/{{ mes_seleccionado[0:4] }}</p>
-                    <p class="small">Agrega un gasto usando el formulario a la izquierda</p>
+                    <p class="small">Agrega un gasto usando el formulario</p>
                 </div>
                 {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Formulario para agregar gastos - ÚLTIMO EN MÓVIL -->
+    <div class="expenses-form-section">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-plus-circle me-2"></i>
+                    Agregar Gasto
+                </h5>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('expenses.add') }}" onsubmit="limpiarFormatosAntesDeEnviar()">
+                    <div class="mb-3">
+                        <label for="concepto" class="form-label">Concepto *</label>
+                        <input type="text" class="form-control" id="concepto" name="concepto" 
+                               placeholder="¿En qué gastaste?" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="monto" class="form-label">Monto *</label>
+                        <input type="text" class="form-control formato-monto" id="monto" name="monto" 
+                               placeholder="0.00" required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="categoria_id" class="form-label">Categoría *</label>
+                        <select class="form-select" id="categoria_id" name="categoria_id" required>
+                            <option value="">Selecciona una categoría</option>
+                            {% for category in categories %}
+                            <option value="{{ category.id }}" data-color="{{ category.color }}">
+                                {{ category.icono }} {{ category.nombre }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="fecha" class="form-label">Fecha *</label>
+                        <input type="date" class="form-control" id="fecha" name="fecha" 
+                               value="{{ now.strftime('%Y-%m-%d') }}" required>
+                    </div>
+
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="esencial" name="esencial" checked>
+                        <label class="form-check-label" for="esencial">Gasto esencial</label>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="descripcion" name="descripcion" 
+                                  rows="3" placeholder="Detalles adicionales..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-danger w-100">
+                        <i class="fas fa-save me-2"></i>
+                        Guardar Gasto
+                    </button>
+                </form>
             </div>
         </div>
     </div>
@@ -243,6 +249,92 @@
         </div>
     </div>
 </div>
+
+<style>
+/* ✅ NUEVO: Estilos para reorganización móvil */
+.expenses-container {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.expenses-list-section {
+    order: 1; /* Primero en móvil */
+}
+
+.expenses-form-section {
+    order: 2; /* Último en móvil */
+}
+
+/* Para desktop: mantener orden original (formulario primero) */
+@media (min-width: 992px) {
+    .expenses-container {
+        flex-direction: row;
+    }
+    
+    .expenses-list-section {
+        order: 2;
+        flex: 1;
+        margin-left: 20px;
+    }
+    
+    .expenses-form-section {
+        order: 1;
+        flex: 0 0 400px;
+    }
+}
+
+/* ✅ NUEVO: Estilos para centrar header en móvil */
+@media (max-width: 767.98px) {
+    .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .d-flex.justify-content-between.flex-wrap.flex-md-nowrap.align-items-center.pt-3.pb-2.mb-3.border-bottom h1.h2 {
+        width: 100%;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+    
+    .btn-toolbar {
+        width: 100%;
+        justify-content: center !important;
+    }
+    
+    .btn-toolbar .me-2 {
+        margin-right: 0.5rem !important;
+    }
+}
+
+/* Mejoras para móviles */
+@media (max-width: 991.98px) {
+    .expenses-container {
+        gap: 15px;
+    }
+    
+    .table-responsive {
+        font-size: 0.875rem;
+    }
+    
+    .table th, .table td {
+        padding: 0.5rem;
+    }
+    
+    /* Mejorar botones en móvil */
+    .btn-sm {
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
+    }
+}
+
+/* Mejoras para tablets */
+@media (min-width: 768px) and (max-width: 991.98px) {
+    .expenses-form-section {
+        flex: 0 0 350px;
+    }
+}
+</style>
 {% endblock %}
 
 {% block scripts %}
