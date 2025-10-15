@@ -29,41 +29,32 @@
     </div>
 </div>
 
-<!-- ✅ MEJORADO: Resumen de Ingresos con bordes redondeados y tamaño aumentado -->
+<!-- Resumen de Ingresos -->
 <div class="row mb-4">
     <div class="col-md-4 mb-3">
-        <div class="card income-summary-card bg-success text-white">
-            <div class="card-body text-center">
-                <div class="summary-icon mb-3">
-                    <i class="fas fa-wallet fa-2x"></i>
-                </div>
-                <h6 class="card-title summary-title">Ingresos del Mes</h6>
-                <h2 class="mb-2 summary-amount">${{ "{:,.0f}".format(ingresos_mes) if ingresos_mes else 0 }}</h2>
-                <small class="summary-date">{{ mes_seleccionado[5:7] }}/{{ mes_seleccionado[0:4] }}</small>
+        <div class="card bg-success text-white">
+            <div class="card-body">
+                <h6 class="card-title">Ingresos del Mes</h6>
+                <h3 class="mb-0">${{ "{:,.0f}".format(ingresos_mes) if ingresos_mes else 0 }}</h3>
+                <small>{{ mes_seleccionado[5:7] }}/{{ mes_seleccionado[0:4] }}</small>
             </div>
         </div>
     </div>
     <div class="col-md-4 mb-3">
-        <div class="card income-summary-card bg-primary text-white">
-            <div class="card-body text-center">
-                <div class="summary-icon mb-3">
-                    <i class="fas fa-chart-line fa-2x"></i>
-                </div>
-                <h6 class="card-title summary-title">Saldo Actual</h6>
-                <h2 class="mb-2 summary-amount">${{ "{:,.0f}".format(saldo_actual) if saldo_actual else 0 }}</h2>
-                <small class="summary-date">Saldo total actual</small>
+        <div class="card bg-primary text-white">
+            <div class="card-body">
+                <h6 class="card-title">Saldo Actual</h6>
+                <h3 class="mb-0">${{ "{:,.0f}".format(saldo_actual) if saldo_actual else 0 }}</h3>
+                <small>Saldo total actual</small>
             </div>
         </div>
     </div>
     <div class="col-md-4 mb-3">
-        <div class="card income-summary-card bg-warning text-white">
-            <div class="card-body text-center">
-                <div class="summary-icon mb-3">
-                    <i class="fas fa-receipt fa-2x"></i>
-                </div>
-                <h6 class="card-title summary-title">Registros</h6>
-                <h2 class="mb-2 summary-amount">{{ total_registros if total_registros else 0 }}</h2>
-                <small class="summary-date">{{ mes_seleccionado[5:7] }}/{{ mes_seleccionado[0:4] }}</small>
+        <div class="card bg-warning text-white">
+            <div class="card-body">
+                <h6 class="card-title">Registros</h6>
+                <h3 class="mb-0">{{ total_registros if total_registros else 0 }}</h3>
+                <small>{{ mes_seleccionado[5:7] }}/{{ mes_seleccionado[0:4] }}</small>
             </div>
         </div>
     </div>
@@ -73,13 +64,13 @@
 <div class="income-container">
     <!-- Lista de ingresos - PRIMERO EN MÓVIL -->
     <div class="income-list-section">
-        <div class="card income-card">
+        <div class="card">
             <div class="card-header d-flex justify-content-between align-items-center">
                 <h5 class="card-title mb-0">
                     <i class="fas fa-list me-2"></i>
                     Historial de Ingresos - {{ mes_seleccionado[5:7] }}/{{ mes_seleccionado[0:4] }}
                 </h5>
-                <span class="badge bg-primary rounded-pill">
+                <span class="badge bg-primary">
                     {{ total_registros }} registro{% if total_registros != 1 %}s{% endif %}
                 </span>
             </div>
@@ -107,15 +98,15 @@
                                     {% endif %}
                                 </td>
                                 <td>
-                                    <span class="badge rounded-pill" style="background-color: {{ income.color }}; color: white;">
+                                    <span class="badge" style="background-color: {{ income.color }}; color: white;">
                                         {{ income.icono }} {{ income.categoria_nombre }}
                                     </span>
                                 </td>
                                 <td>
-                                    <span class="fw-bold text-success income-amount">${{ "{:,.0f}".format(income.monto) }}</span>
+                                    <span class="fw-bold text-success">${{ "{:,.0f}".format(income.monto) }}</span>
                                 </td>
                                 <td>
-                                    <button class="btn btn-sm btn-outline-primary me-1 edit-income rounded-pill" 
+                                    <button class="btn btn-sm btn-outline-primary me-1 edit-income" 
                                             data-income-id="{{ income.id }}"
                                             data-concepto="{{ income.concepto }}"
                                             data-monto="{{ income.monto }}"
@@ -124,7 +115,7 @@
                                             data-descripcion="{{ income.descripcion or '' }}">
                                         <i class="fas fa-edit"></i>
                                     </button>
-                                    <button class="btn btn-sm btn-outline-danger delete-income rounded-pill" 
+                                    <button class="btn btn-sm btn-outline-danger delete-income" 
                                             data-income-id="{{ income.id }}">
                                         <i class="fas fa-trash"></i>
                                     </button>
@@ -135,21 +126,20 @@
                     </table>
                 </div>
                 {% else %}
-                <div class="text-center text-muted py-5">
-                    <i class="fas fa-money-bill-wave fa-4x mb-3 text-muted"></i>
-                    <h5 class="mb-2">No hay ingresos registrados</h5>
-                    <p class="small mb-0">en {{ mes_seleccionado[5:7] }}/{{ mes_seleccionado[0:4] }}</p>
-                    <p class="small text-muted">Agrega un ingreso usando el formulario</p>
+                <div class="text-center text-muted py-4">
+                    <i class="fas fa-money-bill-wave fa-3x mb-3"></i>
+                    <p>No hay ingresos registrados en {{ mes_seleccionado[5:7] }}/{{ mes_seleccionado[0:4] }}</p>
+                    <p class="small">Agrega un ingreso usando el formulario</p>
                 </div>
                 {% endif %}
             </div>
         </div>
     </div>
 
-    <!-- ✅ MEJORADO: Formulario para agregar ingresos con bordes redondeados -->
+    <!-- Formulario para agregar ingresos - ÚLTIMO EN MÓVIL -->
     <div class="income-form-section">
-        <div class="card income-form-card">
-            <div class="card-header bg-success text-white">
+        <div class="card">
+            <div class="card-header">
                 <h5 class="card-title mb-0">
                     <i class="fas fa-plus-circle me-2"></i>
                     Nuevo Ingreso
@@ -158,25 +148,25 @@
             <div class="card-body">
                 <form id="addIncomeForm" onsubmit="limpiarFormatosAntesDeEnviar()">
                     <div class="mb-3">
-                        <label for="concepto" class="form-label fw-bold">Concepto *</label>
-                        <input type="text" class="form-control form-control-lg rounded-pill" id="concepto" name="concepto" 
+                        <label for="concepto" class="form-label">Concepto *</label>
+                        <input type="text" class="form-control" id="concepto" name="concepto" 
                                placeholder="Ej: Salario, Freelance, Inversión..." required>
                     </div>
 
                     <div class="mb-3">
-                        <label for="monto" class="form-label fw-bold">Monto *</label>
-                        <input type="text" class="form-control form-control-lg formato-monto rounded-pill" id="monto" name="monto" 
+                        <label for="monto" class="form-label">Monto *</label>
+                        <input type="text" class="form-control formato-monto" id="monto" name="monto" 
                                placeholder="0.00" required>
                     </div>
 
                     <div class="mb-3">
-                        <label for="fecha" class="form-label fw-bold">Fecha *</label>
-                        <input type="date" class="form-control form-control-lg rounded-pill" id="fecha" name="fecha" required>
+                        <label for="fecha" class="form-label">Fecha *</label>
+                        <input type="date" class="form-control" id="fecha" name="fecha" required>
                     </div>
 
                     <div class="mb-3">
-                        <label for="categoria_id" class="form-label fw-bold">Categoría *</label>
-                        <select class="form-select form-select-lg rounded-pill" id="categoria_id" name="categoria_id" required>
+                        <label for="categoria_id" class="form-label">Categoría *</label>
+                        <select class="form-select" id="categoria_id" name="categoria_id" required>
                             <option value="">Selecciona una categoría</option>
                             {% for category in categories %}
                             <option value="{{ category.id }}">
@@ -187,12 +177,12 @@
                     </div>
 
                     <div class="mb-3">
-                        <label for="descripcion" class="form-label fw-bold">Descripción</label>
-                        <textarea class="form-control rounded-3" id="descripcion" name="descripcion" 
+                        <label for="descripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="descripcion" name="descripcion" 
                                   rows="3" placeholder="Detalles adicionales..."></textarea>
                     </div>
 
-                    <button type="submit" class="btn btn-success btn-lg w-100 rounded-pill py-3">
+                    <button type="submit" class="btn btn-success w-100">
                         <i class="fas fa-save me-2"></i>
                         Agregar Ingreso
                     </button>
@@ -204,33 +194,30 @@
 
 <!-- Modal para editar ingreso -->
 <div class="modal fade" id="editIncomeModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
-        <div class="modal-content rounded-3">
-            <div class="modal-header bg-primary text-white">
-                <h5 class="modal-title">
-                    <i class="fas fa-edit me-2"></i>
-                    Editar Ingreso
-                </h5>
-                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Editar Ingreso</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
                 <form id="editIncomeForm" onsubmit="limpiarFormatosAntesDeEnviar()">
                     <input type="hidden" id="edit_income_id">
                     <div class="mb-3">
-                        <label for="edit_concepto" class="form-label fw-bold">Concepto *</label>
-                        <input type="text" class="form-control form-control-lg rounded-pill" id="edit_concepto" required>
+                        <label for="edit_concepto" class="form-label">Concepto *</label>
+                        <input type="text" class="form-control" id="edit_concepto" required>
                     </div>
                     <div class="mb-3">
-                        <label for="edit_monto" class="form-label fw-bold">Monto *</label>
-                        <input type="text" class="form-control form-control-lg formato-monto rounded-pill" id="edit_monto" required>
+                        <label for="edit_monto" class="form-label">Monto *</label>
+                        <input type="text" class="form-control formato-monto" id="edit_monto" required>
                     </div>
                     <div class="mb-3">
-                        <label for="edit_fecha" class="form-label fw-bold">Fecha *</label>
-                        <input type="date" class="form-control form-control-lg rounded-pill" id="edit_fecha" required>
+                        <label for="edit_fecha" class="form-label">Fecha *</label>
+                        <input type="date" class="form-control" id="edit_fecha" required>
                     </div>
                     <div class="mb-3">
-                        <label for="edit_categoria_id" class="form-label fw-bold">Categoría *</label>
-                        <select class="form-select form-select-lg rounded-pill" id="edit_categoria_id" required>
+                        <label for="edit_categoria_id" class="form-label">Categoría *</label>
+                        <select class="form-select" id="edit_categoria_id" required>
                             <option value="">Selecciona una categoría</option>
                             {% for category in categories %}
                             <option value="{{ category.id }}">
@@ -240,78 +227,25 @@
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label for="edit_descripcion" class="form-label fw-bold">Descripción</label>
-                        <textarea class="form-control rounded-3" id="edit_descripcion" rows="3"></textarea>
+                        <label for="edit_descripcion" class="form-label">Descripción</label>
+                        <textarea class="form-control" id="edit_descripcion" rows="3"></textarea>
                     </div>
                 </form>
             </div>
             <div class="modal-footer">
-                <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cancelar</button>
-                <button type="button" class="btn btn-primary rounded-pill px-4" id="saveIncomeChanges">Guardar Cambios</button>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                <button type="button" class="btn btn-primary" id="saveIncomeChanges">Guardar Cambios</button>
             </div>
         </div>
     </div>
 </div>
 
 <style>
-/* ✅ NUEVO: Estilos mejorados para diseño moderno */
-.income-summary-card {
-    border-radius: 20px !important;
-    border: none;
-    box-shadow: 0 8px 25px rgba(0,0,0,0.1);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
-    min-height: 180px;
-    display: flex;
-    align-items: center;
-}
-
-.income-summary-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 12px 35px rgba(0,0,0,0.15);
-}
-
-.summary-icon {
-    opacity: 0.9;
-}
-
-.summary-title {
-    font-size: 0.9rem;
-    opacity: 0.9;
-    margin-bottom: 0.5rem;
-}
-
-.summary-amount {
-    font-size: 2rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-}
-
-.summary-date {
-    font-size: 0.85rem;
-    opacity: 0.8;
-}
-
-.income-card {
-    border-radius: 15px !important;
-    border: none;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-
-.income-form-card {
-    border-radius: 15px !important;
-    border: none;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-}
-
-.income-amount {
-    font-size: 1.1rem;
-}
-
 /* ✅ NUEVO: Estilos para reorganización móvil */
 .income-container {
     display: flex;
     flex-direction: column;
-    gap: 25px;
+    gap: 20px;
 }
 
 .income-list-section {
@@ -331,20 +265,12 @@
     .income-list-section {
         order: 2;
         flex: 1;
-        margin-left: 25px;
+        margin-left: 20px;
     }
     
     .income-form-section {
         order: 1;
-        flex: 0 0 450px;
-    }
-    
-    .income-summary-card {
-        min-height: 200px;
-    }
-    
-    .summary-amount {
-        font-size: 2.2rem;
+        flex: 0 0 400px;
     }
 }
 
@@ -369,59 +295,34 @@
     .btn-toolbar .me-2 {
         margin-right: 0.5rem !important;
     }
-    
-    .income-summary-card {
-        min-height: 160px;
-    }
-    
-    .summary-amount {
-        font-size: 1.8rem;
-    }
 }
 
 /* Mejoras para móviles */
 @media (max-width: 991.98px) {
     .income-container {
-        gap: 20px;
+        gap: 15px;
     }
     
     .table-responsive {
-        font-size: 0.9rem;
+        font-size: 0.875rem;
     }
     
     .table th, .table td {
-        padding: 0.75rem;
+        padding: 0.5rem;
     }
     
     /* Mejorar botones en móvil */
     .btn-sm {
-        padding: 0.4rem 0.6rem;
-        font-size: 0.8rem;
+        padding: 0.25rem 0.5rem;
+        font-size: 0.75rem;
     }
 }
 
 /* Mejoras para tablets */
 @media (min-width: 768px) and (max-width: 991.98px) {
     .income-form-section {
-        flex: 0 0 380px;
+        flex: 0 0 350px;
     }
-}
-
-/* Mejoras para inputs y selects */
-.form-control-lg {
-    padding: 0.75rem 1.5rem;
-    font-size: 1.1rem;
-}
-
-.form-select-lg {
-    padding: 0.75rem 3rem 0.75rem 1.5rem;
-    font-size: 1.1rem;
-}
-
-.btn-lg {
-    padding: 0.75rem 2rem;
-    font-size: 1.1rem;
-    font-weight: 600;
 }
 </style>
 {% endblock %}
