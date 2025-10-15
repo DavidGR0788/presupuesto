@@ -12,6 +12,16 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            overflow-x: hidden;
+        }
+        
         .sidebar {
             min-height: 100vh;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -55,11 +65,11 @@
             color: white;
         }
 
-        /* ✅ CORREGIDO: Botón hamburguesa fijo que desaparece al abrir menú */
+        /* ✅ CORREGIDO: Botón hamburguesa completamente fijo */
         .hamburger-btn {
-            position: fixed;
-            top: 20px;
-            left: 20px;
+            position: fixed !important;
+            top: 20px !important;
+            left: 20px !important;
             width: 45px;
             height: 45px;
             background: linear-gradient(135deg, #3b82f6, #2563eb);
@@ -81,11 +91,6 @@
             box-shadow: 0 6px 20px rgba(59, 130, 246, 0.6);
         }
 
-        /* ✅ CORREGIDO: Ocultar botón cuando el sidebar está abierto */
-        .sidebar.show + .hamburger-btn {
-            display: none !important;
-        }
-
         /* ✅ NUEVO: Cuadro azul pequeño con las 3 líneas */
         .cuadro-azul-pequeno {
             background: linear-gradient(135deg, #3b82f6, #2563eb);
@@ -96,10 +101,8 @@
             margin-bottom: 25px;
             border: none;
             max-width: 300px;
-            margin-left: 80px; /* Espacio para el botón hamburguesa */
+            margin-left: 80px;
             margin-top: 20px;
-            position: relative;
-            z-index: 999;
         }
 
         .linea-dato {
@@ -125,12 +128,10 @@
             font-weight: 700;
         }
 
-        /* ✅ SOLUCIÓN 2: Ajustar headers para que se vean completos */
         main {
             padding-top: 0.5rem;
         }
 
-        /* Header más compacto */
         .d-flex.justify-content-between.align-items-center.pt-3.pb-2.mb-3.border-bottom {
             background: white;
             margin: 0 0 1rem 0 !important;
@@ -167,16 +168,14 @@
                 padding-top: 0.5rem;
             }
 
-            /* Ajustes para el botón hamburguesa en móvil */
             .hamburger-btn {
-                top: 15px;
-                left: 15px;
+                top: 15px !important;
+                left: 15px !important;
                 width: 40px;
                 height: 40px;
                 font-size: 1.1rem;
             }
 
-            /* Ajustes para el cuadro azul en móvil */
             .cuadro-azul-pequeno {
                 max-width: 260px;
                 margin-left: 70px;
@@ -196,7 +195,6 @@
                 padding: 8px 0;
             }
 
-            /* Header más compacto en móvil */
             .d-flex.justify-content-between.align-items-center.pt-3.pb-2.mb-3.border-bottom {
                 flex-direction: column;
                 align-items: flex-start !important;
@@ -214,12 +212,10 @@
                 justify-content: space-between !important;
             }
             
-            /* Asegurar que las cards se vean bien en móviles */
             .card {
                 margin-bottom: 12px;
             }
 
-            /* Cards más compactas en móvil */
             .card-body {
                 padding: 1rem;
             }
@@ -233,7 +229,6 @@
                 font-size: 1.25rem;
             }
             
-            /* Overlay para cuando el menú está abierto - CORREGIDO */
             .sidebar-overlay {
                 position: fixed;
                 top: 0;
@@ -249,12 +244,10 @@
                 display: block;
             }
             
-            /* Ocultar sidebar por defecto en móviles */
             .sidebar:not(.show) {
                 display: none !important;
             }
 
-            /* ✅ SOLUCIÓN: Asegurar que el botón cerrar sesión sea visible */
             .sidebar {
                 padding-bottom: 80px;
             }
@@ -279,18 +272,15 @@
                 display: none !important;
             }
 
-            /* Ocultar botón hamburguesa en desktop */
             .hamburger-btn {
-                display: none;
+                display: none !important;
             }
 
-            /* Ajustar margen del cuadro azul en desktop */
             .cuadro-azul-pequeno {
                 margin-left: 0;
             }
         }
 
-        /* Mejoras para tablets */
         @media (min-width: 768px) and (max-width: 1023.98px) {
             .sidebar {
                 width: 220px;
@@ -304,7 +294,7 @@
     </style>
 </head>
 <body>
-    <!-- ✅ NUEVO: Botón hamburguesa fijo que desaparece al abrir menú -->
+    <!-- ✅ Botón hamburguesa completamente fijo -->
     <button class="hamburger-btn d-md-none" id="mobileMenuToggle">
         <i class="fas fa-bars"></i>
     </button>
@@ -365,7 +355,6 @@
                             </a>
                         </li>
                         
-                        <!-- SOLO PARA ADMINISTRADORES -->
                         {% if session.user_role == 1 %}
                         <li class="nav-item mt-3">
                             <hr class="text-white">
@@ -379,7 +368,6 @@
                             </a>
                         </li>
                         {% endif %}
-                        <!-- FIN SECCIÓN ADMIN -->
                     </ul>
 
                     <div class="mt-4 p-3">
@@ -398,7 +386,6 @@
             <!-- Main content -->
             <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4 bg-light" style="min-height: 100vh;">
                 {% block content %}
-                <!-- ✅ NUEVO: Cuadro azul pequeño con las 3 líneas -->
                 <div class="container mt-4">
                     <div class="cuadro-azul-pequeno">
                         <div class="linea-dato">
@@ -415,7 +402,6 @@
                         </div>
                     </div>
                     
-                    <!-- El resto del contenido de la aplicación se mantiene igual -->
                     {% block main_content %}{% endblock %}
                 </div>
                 {% endblock %}
@@ -426,7 +412,6 @@
         {% block auth_content %}{% endblock %}
     {% endif %}
 
-    <!-- Flash Messages -->
     {% with messages = get_flashed_messages(with_categories=true) %}
         {% if messages %}
             <div class="position-fixed top-0 end-0 p-3" style="z-index: 11">
@@ -443,7 +428,6 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- ✅ CORREGIDO: Script para control del menú móvil -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
         const sidebar = document.getElementById('sidebarMobile');
@@ -451,7 +435,6 @@
         const overlay = document.getElementById('sidebarOverlay');
         
         if (menuToggle && sidebar) {
-            // Abrir/cerrar menú
             menuToggle.addEventListener('click', function(e) {
                 e.stopPropagation();
                 sidebar.classList.toggle('show');
@@ -459,7 +442,6 @@
                     overlay.classList.toggle('show');
                 }
                 
-                // ✅ CORREGIDO: Ocultar/mostrar botón hamburguesa
                 if (sidebar.classList.contains('show')) {
                     menuToggle.style.display = 'none';
                 } else {
@@ -467,17 +449,14 @@
                 }
             });
             
-            // Cerrar menú al hacer clic en el overlay
             if (overlay) {
                 overlay.addEventListener('click', function() {
                     sidebar.classList.remove('show');
                     overlay.classList.remove('show');
-                    // Mostrar botón hamburguesa al cerrar menú
                     menuToggle.style.display = 'flex';
                 });
             }
             
-            // Cerrar menú al hacer clic en un enlace (en móviles)
             sidebar.querySelectorAll('.nav-link').forEach(link => {
                 link.addEventListener('click', function() {
                     if (window.innerWidth < 768) {
@@ -485,13 +464,11 @@
                         if (overlay) {
                             overlay.classList.remove('show');
                         }
-                        // Mostrar botón hamburguesa al cerrar menú
                         menuToggle.style.display = 'flex';
                     }
                 });
             });
             
-            // Cerrar menú al redimensionar la ventana a desktop
             window.addEventListener('resize', function() {
                 if (window.innerWidth >= 768) {
                     sidebar.classList.remove('show');
@@ -504,7 +481,6 @@
                 }
             });
             
-            // Prevenir que clicks dentro del sidebar cierren el menú
             sidebar.addEventListener('click', function(e) {
                 e.stopPropagation();
             });
@@ -514,7 +490,6 @@
     
     {% block scripts %}
     <script>
-    // Funciones globales para formateo de números
     function formatearNumero(input) {
         let valor = input.value.replace(/[^\d.]/g, '');
         let partes = valor.split('.');
