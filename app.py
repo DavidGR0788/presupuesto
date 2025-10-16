@@ -75,7 +75,7 @@ def create_app():
     def inject_user():
         return dict(session=session)
     
-    print("🌈 Aplicación Flask inicializada correctaments")
+    print("🌈 Aplicación Flask inicializada correctamente")
     return app
 
 # ✅ INSTANCIA PRINCIPAL (importante para gunicorn)
