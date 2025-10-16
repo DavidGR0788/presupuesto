@@ -18,47 +18,31 @@ def create_app():
         app.secret_key = os.getenv('SECRET_KEY', 'clave-secreta-railway-123')
         app.config['DEBUG'] = False
         
-        # Base de datos en Railway
-        mysql_host = os.getenv('MYSQLHOST', 'localhost')
-        mysql_user = os.getenv('MYSQLUSER', 'root')
-        mysql_password = os.getenv('MYSQLPASSWORD', '')
-        mysql_database = os.getenv('MYSQLDATABASE', 'presupuesto_personal')
-        mysql_port = os.getenv('MYSQLPORT', '3306')
-        
-        # Construir connection string para Railway
-        db_url = f'mysql+pymysql://{mysql_user}:{mysql_password}@{mysql_host}:{mysql_port}/{mysql_database}'
-        app.config['SQLALCHEMY_DATABASE_URI'] = db_url
-        
-        print(f"📦 Base de datos Railway: {mysql_host}:{mysql_port}/{mysql_database}")
-        
     else:
         print("🔵 Entorno: Local (Desarrollo)")
         # Configuración para desarrollo local
         app.secret_key = 'clave-secreta-local-123'
         app.config['DEBUG'] = True
-        
-        # Base de datos local (XAMPP/phpMyAdmin)
-        db_url = 'mysql+pymysql://root:@localhost/presupuesto_personal'
-        app.config['SQLALCHEMY_DATABASE_URI'] = db_url
-        
-        print("💻 Base de datos local: localhost/presupuesto_personal")
     
-    # Configuración común para ambos entornos
-    app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-    app.config['PERMANENT_SESSION_LIFETIME'] = 3600000  # 1 hora
-    
-    print(f"🔗 URL de BD: {app.config['SQLALCHEMY_DATABASE_URI']}")
     print("=== ✅ CONFIGURACIÓN COMPLETADA ===\n")
     
-    # ✅ INICIALIZACIÓN DE BASE DE DATOS
+    # ✅ VERIFICACIÓN DE CONEXIÓN A BASE DE DATOS (con pymysql)
     try:
-        print("🗄️ Inicializando base de datos...")
-        from init_database import init_database
-        init_database()
-        print("🎉 Base de datos inicializada exitosamente\n")
+        print("🗄️ Verificando conexión a base de datos...")
+        from database import Database
+        db = Database()
+        
+        # Probar conexión simple
+        db.execute_query("SELECT 1")
+        print("🎉 Conexión a base de datos exitosa\n")
+        
     except Exception as e:
-        print(f"⚠️ Nota: {e}\n")
-        print("🔧 Continuando - puede que las tablas ya existan\n")
+        print(f"⚠️ Error en conexión a BD: {e}")
+        print("💡 Verifica que:")
+        print("   - MySQL esté ejecutándose en XAMPP")
+        print("   - La base de datos 'presupuesto_personal' exista")
+        print("   - El usuario 'root' tenga acceso sin contraseña")
+        print("🔧 Continuando con la aplicación...\n")
     
     # ✅ REGISTRO DE CONTROLADORES
     print("🚀 Registrando controladores...")
