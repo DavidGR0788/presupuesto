@@ -299,15 +299,15 @@
     </style>
 </head>
 <body>
-    <!-- ✅ Botón hamburguesa en posición normal -->
-    <button class="hamburger-btn d-md-none" id="mobileMenuToggle">
-        <i class="fas fa-bars"></i>
-    </button>
-    
     <!-- Overlay para móviles -->
     <div class="sidebar-overlay" id="sidebarOverlay"></div>
 
     {% if session.user_id %}
+    <!-- ✅ CORREGIDO: Botón hamburguesa DENTRO del bloque autenticado -->
+    <button class="hamburger-btn d-md-none" id="mobileMenuToggle">
+        <i class="fas fa-bars"></i>
+    </button>
+    
     <div class="container-fluid">
         <div class="row">
             <!-- Sidebar -->
