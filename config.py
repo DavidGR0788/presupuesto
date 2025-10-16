@@ -22,7 +22,7 @@ class Config:
         MYSQL_HOST = 'localhost'
         MYSQL_USER = 'root'
         MYSQL_PASSWORD = ''  # Vacío para XAMPP por defecto
-        MYSQL_DB = 'presupuesto_personal'
+        MYSQL_DB = 'presupuesto_db'
         MYSQL_PORT = 3306
     
     SECRET_KEY = os.getenv('SECRET_KEY', 'presupuesto_secret_key_2025')
