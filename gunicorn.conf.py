@@ -1,7 +1,7 @@
 import os
 
 # Configuración optimizada para Railway
-bind = "0.0.0.0:" + str(os.environ.get("PORT", 8080))
+bind = "0.0.0.0:" + str(os.environ.get("PORT", 5000))
 workers = 1
 timeout = 120  # 2 minutos de timeout
 keepalive = 5
