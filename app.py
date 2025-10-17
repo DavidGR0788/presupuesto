@@ -5,6 +5,10 @@ import threading
 import time
 from flask import Flask, session
 
+# ✅ CONFIGURACIÓN OBLIGATORIA PARA RAILWAY
+os.environ['FLASK_APP'] = 'app.py'
+os.environ['FLASK_RUN_PORT'] = '5000'
+
 def create_app():
     start_time = time.time()
     
@@ -129,14 +133,16 @@ def create_app():
             'archivos': os.listdir('.'),
             'entorno': 'railway' if is_railway else 'local',
             'python_path': sys.path,
-            'status': 'running'
+            'status': 'running',
+            'port': os.environ.get('PORT'),
+            'flask_port': os.environ.get('FLASK_RUN_PORT')
         }
         return info
     
     # ✅ RUTA DE HEALTH CHECK
     @app.route('/health')
     def health_check():
-        return {'status': 'healthy', 'message': 'App funcionando', 'environment': 'railway' if is_railway else 'local'}
+        return {'status': 'healthy', 'message': 'App funcionando', 'environment': 'railway' if is_railway else 'local', 'port': os.environ.get('PORT')}
     
     # ✅ RUTA PRINCIPAL MEJORADA
     @app.route('/')
@@ -158,6 +164,7 @@ def create_app():
             <div class="status healthy">
                 <h3>✅ Aplicación Funcionando</h3>
                 <p>El servidor se ha iniciado correctamente.</p>
+                <p><strong>Puerto:</strong> ''' + str(os.environ.get('PORT', '5000')) + '''</p>
             </div>
             <div class="status info">
                 <h3>🔍 Información</h3>
@@ -176,7 +183,7 @@ def create_app():
     print(f"🌈 Aplicación Flask inicializada correctamente en {end_time - start_time:.2f} segundos")
     return app
 
-# ✅ INSTANCIA PRINCIPAL (importante para gunicorn)
+# ✅ INSTANCIA PRINCIPAL
 try:
     app = create_app()
     print("🎉 create_app() ejecutado exitosamente")
@@ -195,11 +202,14 @@ except Exception as e:
     def health_fallback():
         return {'status': 'fallback', 'message': 'Modo de respaldo activado'}
 
-# ✅ EJECUCIÓN
+# ✅ EJECUCIÓN FORZADA EN PUERTO 5000
 if __name__ == '__main__':
-    port = int(os.getenv('PORT', 5000))
-    debug_mode = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+    # FORZAR PUERTO 5000 SIEMPRE
+    port = 5000
+    debug_mode = False
     
-    print(f"\n🚀 Iniciando servidor en puerto {port}...")
+    print(f"🔥 PUERTO FORZADO: {port}")
+    print(f"🚀 Iniciando servidor en puerto {port}...")
     print(f"🔧 Debug mode: {debug_mode}")
+    
     app.run(host='0.0.0.0', port=port, debug=debug_mode)
