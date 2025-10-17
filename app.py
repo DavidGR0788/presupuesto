@@ -1,9 +1,13 @@
 import os
 import sys
 import traceback
+import threading
+import time
 from flask import Flask, session
 
 def create_app():
+    start_time = time.time()
+    
     # ✅ DEBUG INICIAL
     print("=== 🐛 INICIANDO DEBUG INTEGRADO ===")
     print(f"📁 Directorio actual: {os.getcwd()}")
@@ -34,50 +38,35 @@ def create_app():
     
     print("=== ✅ CONFIGURACIÓN COMPLETADA ===\n")
     
-    # ✅ VERIFICACIÓN DE CONEXIÓN A BASE DE DATOS CON DEBUGGING
-    print("🗄️ Verificando conexión a base de datos...")
-    try:
-        # DEBUG: Verificar si existe database.py
-        if os.path.exists('database.py'):
-            print("✅ database.py encontrado")
-        else:
-            print("❌ database.py NO encontrado")
-            
-        # Intentar importar database de diferentes formas
-        try:
-            from utils.database import Database
-            print("✅ 'from database import Database' funcionó")
-        except ImportError as e:
-            print(f"❌ Error importando database: {e}")
-            print("🔧 Intentando método alternativo...")
-            
-            # Método alternativo
-            import importlib.util
-            spec = importlib.util.spec_from_file_location("database", "database.py")
-            database_module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(database_module)
-            Database = database_module.Database
-            print("✅ Database importado con método alternativo")
-        
-        db = Database()
-        print("✅ Instancia de Database creada")
-        
-        # Probar conexión simple
-        result = db.execute_query("SELECT 1", fetch_one=True)
-        print(f"🎉 Conexión a base de datos exitosa: {result}\n")
-        
-    except Exception as e:
-        print(f"❌ Error en conexión a BD: {e}")
-        print("📝 Traceback completo:")
-        traceback.print_exc()
-        print("\n💡 Verifica que:")
-        print("   - MySQL esté ejecutándose en XAMPP")
-        print("   - La base de datos 'presupuesto_personal' exista")
-        print("   - El usuario 'root' tenga acceso sin contraseña")
-        print("🔧 Continuando con la aplicación...\n")
+    # ✅ VERIFICACIÓN DE CONEXIÓN A BASE DE DATOS (NO BLOQUEANTE)
+    print("🗄️ Iniciando verificación de base de datos (no bloqueante)...")
     
-    # ✅ REGISTRO DE CONTROLADORES CON DEBUGGING
-    print("🚀 Registrando controladores...")
+    def check_database():
+        """Función para verificar BD en segundo plano"""
+        try:
+            print("   🔍 Importando Database...")
+            from utils.database import Database
+            db = Database()
+            print("   ✅ Database importado e instanciado")
+            
+            # Probar conexión simple
+            print("   🔌 Probando conexión a MySQL...")
+            result = db.execute_query("SELECT 1", fetch_one=True)
+            print(f"   🎉 Conexión a base de datos exitosa: {result}\n")
+            return True
+            
+        except Exception as e:
+            print(f"   ⚠️ Error en conexión a BD: {e}")
+            print("   💡 La aplicación continuará, pero algunas funciones pueden no estar disponibles")
+            print("   🔧 Verifica la configuración de MySQL en Railway\n")
+            return False
+    
+    # Ejecutar la verificación en un hilo para no bloquear el inicio
+    db_thread = threading.Thread(target=check_database, daemon=True)
+    db_thread.start()
+    
+    # ✅ REGISTRO DE CONTROLADORES (PRIMERO, PARA INICIO RÁPIDO)
+    print("🚀 Registrando controladores (inicio rápido)...")
     
     try:
         # DEBUG: Verificar carpeta controllers
@@ -139,16 +128,52 @@ def create_app():
             'directorio_actual': os.getcwd(),
             'archivos': os.listdir('.'),
             'entorno': 'railway' if is_railway else 'local',
-            'python_path': sys.path
+            'python_path': sys.path,
+            'status': 'running'
         }
         return info
     
     # ✅ RUTA DE HEALTH CHECK
     @app.route('/health')
     def health_check():
-        return {'status': 'healthy', 'message': 'App funcionando'}
+        return {'status': 'healthy', 'message': 'App funcionando', 'environment': 'railway' if is_railway else 'local'}
     
-    print("🌈 Aplicación Flask inicializada correctamente con debugging")
+    # ✅ RUTA PRINCIPAL MEJORADA
+    @app.route('/')
+    def home():
+        return '''
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Presupuesto Personal</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 40px; }
+                .status { padding: 20px; border-radius: 5px; margin: 10px 0; }
+                .healthy { background: #d4edda; color: #155724; }
+                .info { background: #d1ecf1; color: #0c5460; }
+            </style>
+        </head>
+        <body>
+            <h1>🚀 Presupuesto Personal</h1>
+            <div class="status healthy">
+                <h3>✅ Aplicación Funcionando</h3>
+                <p>El servidor se ha iniciado correctamente.</p>
+            </div>
+            <div class="status info">
+                <h3>🔍 Información</h3>
+                <p><strong>Entorno:</strong> ''' + ('Railway (Producción)' if is_railway else 'Local (Desarrollo)') + '''</p>
+                <p><strong>Rutas disponibles:</strong></p>
+                <ul>
+                    <li><a href="/debug">/debug</a> - Información de diagnóstico</li>
+                    <li><a href="/health">/health</a> - Estado del servicio</li>
+                </ul>
+            </div>
+        </body>
+        </html>
+        '''
+    
+    end_time = time.time()
+    print(f"🌈 Aplicación Flask inicializada correctamente en {end_time - start_time:.2f} segundos")
     return app
 
 # ✅ INSTANCIA PRINCIPAL (importante para gunicorn)
@@ -165,6 +190,10 @@ except Exception as e:
     @app.route('/')
     def fallback():
         return "⚠️ Aplicación en modo fallback - Revisar logs"
+    
+    @app.route('/health')
+    def health_fallback():
+        return {'status': 'fallback', 'message': 'Modo de respaldo activado'}
 
 # ✅ EJECUCIÓN
 if __name__ == '__main__':
