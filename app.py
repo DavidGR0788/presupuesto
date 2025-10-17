@@ -45,7 +45,7 @@ def create_app():
             
         # Intentar importar database de diferentes formas
         try:
-            from database import Database
+            from utils.database import Database
             print("✅ 'from database import Database' funcionó")
         except ImportError as e:
             print(f"❌ Error importando database: {e}")
