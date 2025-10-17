@@ -89,7 +89,7 @@
                         </thead>
                         <tbody>
                             {% for income in incomes %}
-                            <tr>
+                            <tr class="fade-in">
                                 <td>{{ income.fecha.strftime('%d/%m/%Y') if income.fecha else '' }}</td>
                                 <td>
                                     <strong>{{ income.concepto }}</strong>
@@ -240,6 +240,42 @@
     </div>
 </div>
 
+<!-- Modal de Confirmación para Eliminar -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Confirmar Eliminación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-trash-alt fa-3x text-danger mb-3"></i>
+                    <h5>¿Estás seguro de eliminar este ingreso?</h5>
+                    <p class="text-muted mb-0" id="deleteIncomeDetails">
+                        <!-- Los detalles se cargarán aquí dinámicamente -->
+                    </p>
+                </div>
+                <div class="alert alert-warning small">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Esta acción no se puede deshacer y afectará tu saldo total.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash me-1"></i>Sí, Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <style>
 /* ✅ NUEVO: Estilos para reorganización móvil */
 .income-container {
@@ -324,6 +360,34 @@
         flex: 0 0 350px;
     }
 }
+
+/* ANIMACIONES PARA TRANSACCIONES - NUEVO */
+.fade-in {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Animación escalonada para filas de tabla */
+.table tbody tr {
+    animation-duration: 0.5s;
+    animation-fill-mode: both;
+}
+
+.table tbody tr:nth-child(1) { animation-delay: 0.1s; }
+.table tbody tr:nth-child(2) { animation-delay: 0.2s; }
+.table tbody tr:nth-child(3) { animation-delay: 0.3s; }
+.table tbody tr:nth-child(4) { animation-delay: 0.4s; }
+.table tbody tr:nth-child(5) { animation-delay: 0.5s; }
 </style>
 {% endblock %}
 
@@ -345,6 +409,7 @@ function limpiarFormatosAntesDeEnviar() {
 
 document.addEventListener('DOMContentLoaded', function() {
     let currentIncomeId = null;
+    let incomeToDelete = null;
     
     // Establecer fecha actual por defecto
     const today = new Date().toISOString().split('T')[0];
@@ -447,31 +512,55 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
     
-    // Eliminar ingreso
+    // Eliminar ingreso - Versión mejorada con modal
     document.querySelectorAll('.delete-income').forEach(button => {
         button.addEventListener('click', function() {
             const incomeId = this.getAttribute('data-income-id');
+            const row = this.closest('tr');
+            const concepto = row.querySelector('td:nth-child(2) strong').textContent;
+            const monto = row.querySelector('td:nth-child(4) span').textContent;
+            const fecha = row.querySelector('td:nth-child(1)').textContent;
             
-            if (confirm('¿Estás seguro de que quieres eliminar este ingreso? Esta acción no se puede deshacer.')) {
-                fetch(`/income/delete/${incomeId}`, {
-                    method: 'POST',
-                    headers: {
-                        'X-Requested-With': 'XMLHttpRequest'
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert('Error al eliminar el ingreso: ' + (data.error || 'Error desconocido'));
-                    }
-                })
-                .catch(error => {
-                    console.error('Error:', error);
-                    alert('Error al eliminar el ingreso: ' + error.message);
-                });
+            incomeToDelete = incomeId;
+            
+            // Mostrar detalles en el modal
+            document.getElementById('deleteIncomeDetails').innerHTML = `
+                <strong>"${concepto}"</strong><br>
+                <span class="text-success">${monto}</span> • ${fecha}
+            `;
+            
+            // Mostrar modal
+            const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+            modal.show();
+        });
+    });
+    
+    // Confirmar eliminación
+    document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+        if (!incomeToDelete) return;
+        
+        fetch(`/income/delete/${incomeToDelete}`, {
+            method: 'POST',
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
             }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Cerrar modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
+                modal.hide();
+                
+                // Recargar página
+                location.reload();
+            } else {
+                alert('Error al eliminar el ingreso: ' + (data.error || 'Error desconocido'));
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al eliminar el ingreso: ' + error.message);
         });
     });
 });

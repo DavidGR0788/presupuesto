@@ -92,12 +92,40 @@ class ExpenseController:
             return redirect(url_for('auth.login'))
         
         if request.method == 'POST':
+            print("=== 🚨 DEBUG INICIANDO - FORMULARIO GASTO ===")
+            
+            # Debug: imprimir TODOS los datos del formulario
+            print("📋 TODOS LOS DATOS DEL FORMULARIO:")
+            for key, value in request.form.items():
+                print(f"   {key}: {value}")
+            
             concepto = request.form.get('concepto')
             monto = request.form.get('monto')
             categoria_id = request.form.get('categoria_id')
             fecha = request.form.get('fecha')
-            esencial = request.form.get('esencial', 'on') == 'on'
+            
+            # Debug del campo esencial
+            esencial_checkbox = request.form.get('esencial')
+            print(f"🔍 DEBUG ESENCIAL - Valor crudo: '{esencial_checkbox}'")
+            print(f"🔍 DEBUG ESENCIAL - Tipo: {type(esencial_checkbox)}")
+            
+            # Procesar el valor
+            if esencial_checkbox == 'on':
+                esencial = True
+                print("🔍 DEBUG ESENCIAL - Checkbox: SELECCIONADO")
+            else:
+                esencial = False
+                print("🔍 DEBUG ESENCIAL - Checkbox: NO SELECCIONADO")
+            
             descripcion = request.form.get('descripcion')
+            
+            print(f"🎯 VALORES FINALES:")
+            print(f"   concepto: {concepto}")
+            print(f"   monto: {monto}")
+            print(f"   categoria_id: {categoria_id}")
+            print(f"   fecha: {fecha}")
+            print(f"   esencial: {esencial}")
+            print(f"   descripcion: {descripcion}")
             
             if not all([concepto, monto, categoria_id, fecha]):
                 flash('Por favor completa todos los campos obligatorios', 'error')
@@ -106,9 +134,11 @@ class ExpenseController:
             try:
                 user_id = session['user_id']
                 
-                # ✅ VALIDACIÓN 1: Limpiar formato y convertir a float
-                monto_limpio = monto.replace('.', '')  # Remover puntos de separadores de miles
+                # Limpiar formato y convertir a float
+                monto_limpio = monto.replace('.', '')
                 monto_float = float(monto_limpio)
+                
+                print(f"💰 MONTO PROCESADO: {monto_float}")
                 
                 if monto_float <= 0:
                     flash('El monto debe ser mayor a 0', 'error')
@@ -147,18 +177,48 @@ class ExpenseController:
                               f'Presupuesto disponible: ${saldo_presupuesto:,.0f}', 'error')
                         return redirect(url_for('expenses.index'))
                 
-                # Si pasa todas las validaciones, crear el gasto
+                print("✅ PASÓ VALIDACIONES - CREANDO GASTO...")
+                print(f"📝 DATOS PARA CREAR:")
+                print(f"   user_id: {user_id}")
+                print(f"   concepto: {concepto}")
+                print(f"   monto: {monto_float}")
+                print(f"   categoria_id: {categoria_id}")
+                print(f"   fecha: {fecha}")
+                print(f"   esencial: {esencial}")
+                print(f"   descripcion: {descripcion}")
+                
+                # Crear el gasto
                 expense_id = self.expense_model.create(
                     user_id, concepto, monto_float, 
                     int(categoria_id), fecha, esencial, descripcion
                 )
+                
+                print(f"🎉 GASTO CREADO CON ID: {expense_id}")
+                
+                # ✅ DEBUG EXTRA: Verificar el gasto recién creado
+                if expense_id:
+                    gasto_creado = self.expense_model.db.execute_query(
+                        "SELECT * FROM gastos WHERE id = %s", 
+                        (expense_id,), 
+                        fetch_one=True
+                    )
+                    print(f"🔍 VERIFICANDO GASTO EN BD:")
+                    print(f"   ID: {gasto_creado['id']}")
+                    print(f"   Concepto: {gasto_creado['concepto']}")
+                    print(f"   Esencial en BD: {gasto_creado['esencial']}")
+                    print(f"   Tipo de esencial: {type(gasto_creado['esencial'])}")
+                
                 flash('¡Gasto agregado exitosamente!', 'success')
                 
             except ValueError:
                 flash('El monto ingresado no es válido', 'error')
                 return redirect(url_for('expenses.index'))
             except Exception as e:
+                print(f"💥 ERROR: {str(e)}")
+                traceback.print_exc()
                 flash('Error al agregar gasto: ' + str(e), 'error')
+            
+            print("=== 🚨 DEBUG FINALIZADO - FORMULARIO GASTO ===")
         
         return redirect(url_for('expenses.index'))
 
@@ -184,11 +244,13 @@ class ExpenseController:
                 monto = request.form.get('monto')
                 categoria_id = request.form.get('categoria_id')
                 fecha = request.form.get('fecha')
-                esencial = 'esencial' in request.form
+                # ✅ CORREGIDO: Usar el mismo método que en add()
+                esencial = request.form.get('esencial') == 'on'
                 descripcion = request.form.get('descripcion', '')
                 user_id = session['user_id']
 
                 print(f"🔍 DEBUG: user_id={user_id}, gasto_id={gasto_id}")
+                print(f"🔍 DEBUG: esencial={esencial}")
 
                 # Verificar que el gasto pertenece al usuario
                 expense = self.expense_model.db.execute_query(

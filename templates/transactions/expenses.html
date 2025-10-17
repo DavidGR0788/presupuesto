@@ -90,7 +90,7 @@
                         </thead>
                         <tbody>
                             {% for expense in expenses %}
-                            <tr>
+                            <tr class="fade-in">
                                 <td>
                                     <strong>{{ expense.concepto }}</strong>
                                     {% if expense.descripcion %}
@@ -180,9 +180,12 @@
                     </div>
 
                     <div class="mb-3 form-check">
-                        <input type="checkbox" class="form-check-input" id="esencial" name="esencial" checked>
+                        <input type="checkbox" class="form-check-input" id="esencial" name="esencial">
                         <label class="form-check-label" for="esencial">Gasto esencial</label>
                     </div>
+
+                    <!-- ✅ INPUT HIDDEN PARA MANEJAR CHECKBOX NO SELECCIONADO -->
+                    <input type="hidden" name="esencial" value="false">
 
                     <div class="mb-3">
                         <label for="descripcion" class="form-label">Descripción</label>
@@ -236,6 +239,10 @@
                         <input type="checkbox" class="form-check-input" id="editar_esencial" name="esencial">
                         <label class="form-check-label" for="editar_esencial">Gasto esencial</label>
                     </div>
+
+                    <!-- ✅ INPUT HIDDEN PARA MANEJAR CHECKBOX NO SELECCIONADO -->
+                    <input type="hidden" name="esencial" value="false">
+
                     <div class="mb-3">
                         <label for="editar_descripcion" class="form-label">Descripción</label>
                         <textarea class="form-control" id="editar_descripcion" name="descripcion" rows="3"></textarea>
@@ -246,6 +253,42 @@
                     <button type="submit" class="btn btn-primary">Guardar Cambios</button>
                 </div>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación para Eliminar -->
+<div class="modal fade" id="deleteConfirmModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title">
+                    <i class="fas fa-exclamation-triangle me-2"></i>
+                    Confirmar Eliminación
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div class="mb-3">
+                    <i class="fas fa-trash-alt fa-3x text-danger mb-3"></i>
+                    <h5>¿Estás seguro de eliminar este gasto?</h5>
+                    <p class="text-muted mb-0" id="deleteExpenseDetails">
+                        <!-- Los detalles se cargarán aquí dinámicamente -->
+                    </p>
+                </div>
+                <div class="alert alert-warning small">
+                    <i class="fas fa-info-circle me-1"></i>
+                    Esta acción no se puede deshacer y afectará tu saldo total.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                    <i class="fas fa-times me-1"></i>Cancelar
+                </button>
+                <button type="button" class="btn btn-danger" id="confirmDeleteBtn">
+                    <i class="fas fa-trash me-1"></i>Sí, Eliminar
+                </button>
+            </div>
         </div>
     </div>
 </div>
@@ -334,6 +377,34 @@
         flex: 0 0 350px;
     }
 }
+
+/* ANIMACIONES PARA TRANSACCIONES - NUEVO */
+.fade-in {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Animación escalonada para filas de tabla */
+.table tbody tr {
+    animation-duration: 0.5s;
+    animation-fill-mode: both;
+}
+
+.table tbody tr:nth-child(1) { animation-delay: 0.1s; }
+.table tbody tr:nth-child(2) { animation-delay: 0.2s; }
+.table tbody tr:nth-child(3) { animation-delay: 0.3s; }
+.table tbody tr:nth-child(4) { animation-delay: 0.4s; }
+.table tbody tr:nth-child(5) { animation-delay: 0.5s; }
 </style>
 {% endblock %}
 
@@ -370,32 +441,75 @@ function editarGasto(id, concepto, monto, fecha, categoriaId, esencial, descripc
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Eliminar gastos
+    let expenseToDelete = null;
+    
+    // Eliminar gastos - Versión mejorada con modal
     document.querySelectorAll('.delete-expense').forEach(button => {
         button.addEventListener('click', function() {
             const expenseId = this.getAttribute('data-expense-id');
+            const row = this.closest('tr');
+            const concepto = row.querySelector('td:nth-child(1) strong').textContent;
+            const monto = row.querySelector('td:nth-child(3)').textContent;
+            const fecha = row.querySelector('td:nth-child(4)').textContent;
+            const esencial = row.querySelector('td:nth-child(5) span').textContent;
             
-            if (confirm('¿Estás seguro de que quieres eliminar este gasto?')) {
-                fetch(`/expenses/delete/${expenseId}`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    }
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        location.reload();
-                    } else {
-                        alert('Error al eliminar el gasto: ' + data.error);
-                    }
-                })
-                .catch(error => {
-                    alert('Error al eliminar el gasto: ' + error);
-                });
-            }
+            expenseToDelete = expenseId;
+            
+            // Mostrar detalles en el modal
+            document.getElementById('deleteExpenseDetails').innerHTML = `
+                <strong>"${concepto}"</strong><br>
+                <span class="text-danger">${monto}</span> • ${fecha}<br>
+                <small>Esencial: ${esencial}</small>
+            `;
+            
+            // Mostrar modal
+            const modal = new bootstrap.Modal(document.getElementById('deleteConfirmModal'));
+            modal.show();
         });
     });
+    
+    // Confirmar eliminación
+    document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
+        if (!expenseToDelete) return;
+        
+        fetch(`/expenses/delete/${expenseToDelete}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Cerrar modal
+                const modal = bootstrap.Modal.getInstance(document.getElementById('deleteConfirmModal'));
+                modal.hide();
+                
+                // Recargar página
+                location.reload();
+            } else {
+                alert('Error al eliminar el gasto: ' + data.error);
+            }
+        })
+        .catch(error => {
+            alert('Error al eliminar el gasto: ' + error);
+        });
+    });
+    
+    // Validación del campo esencial
+    const esencialCheckbox = document.getElementById('esencial');
+    if (esencialCheckbox) {
+        esencialCheckbox.addEventListener('change', function() {
+            console.log('Campo esencial:', this.checked ? 'Sí' : 'No');
+        });
+    }
+    
+    const editarEsencialCheckbox = document.getElementById('editar_esencial');
+    if (editarEsencialCheckbox) {
+        editarEsencialCheckbox.addEventListener('change', function() {
+            console.log('Campo esencial (editar):', this.checked ? 'Sí' : 'No');
+        });
+    }
 });
 </script>
 {% endblock %}

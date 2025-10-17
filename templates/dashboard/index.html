@@ -132,9 +132,10 @@
             </div>
             <div class="card-body">
                 {% if ultimos_ingresos %}
-                    <div class="list-group list-group-flush">
+                    <div class="list-group list-group-flush transaction-list">
                         {% for income in ultimos_ingresos %}
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div class="list-group-item d-flex justify-content-between align-items-center fade-in" 
+                             data-transaction-id="{{ income.id }}">
                             <div>
                                 <h6 class="mb-1">{{ income.concepto }}</h6>
                                 <small class="text-muted">
@@ -150,7 +151,7 @@
                         {% endfor %}
                     </div>
                 {% else %}
-                    <div class="text-center text-muted py-4">
+                    <div class="text-center text-muted py-4 empty-state">
                         <i class="fas fa-money-bill-wave fa-2x mb-2"></i>
                         <p>No hay ingresos registrados</p>
                     </div>
@@ -170,9 +171,10 @@
             </div>
             <div class="card-body">
                 {% if ultimos_gastos %}
-                    <div class="list-group list-group-flush">
+                    <div class="list-group list-group-flush transaction-list">
                         {% for expense in ultimos_gastos %}
-                        <div class="list-group-item d-flex justify-content-between align-items-center">
+                        <div class="list-group-item d-flex justify-content-between align-items-center fade-in" 
+                             data-transaction-id="{{ expense.id }}">
                             <div>
                                 <h6 class="mb-1">{{ expense.concepto }}</h6>
                                 <small class="text-muted">
@@ -188,7 +190,7 @@
                         {% endfor %}
                     </div>
                 {% else %}
-                    <div class="text-center text-muted py-4">
+                    <div class="text-center text-muted py-4 empty-state">
                         <i class="fas fa-receipt fa-2x mb-2"></i>
                         <p>No hay gastos registrados</p>
                     </div>
@@ -213,7 +215,7 @@
                 <div class="row">
                     {% for meta in metas_activas %}
                     <div class="col-md-4 mb-3">
-                        <div class="card border-warning">
+                        <div class="card border-warning fade-in">
                             <div class="card-body">
                                 <h6 class="card-title">{{ meta.concepto }}</h6>
                                 <div class="progress mb-2" style="height: 15px;">
@@ -350,6 +352,80 @@
     justify-content: center;
 }
 
+/* ANIMACIONES PARA TRANSACCIONES - NUEVO */
+.fade-in {
+    animation: fadeInUp 0.5s ease-out;
+}
+
+.slide-out {
+    animation: slideOutRight 0.3s ease-in forwards;
+}
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        opacity: 1;
+        transform: translateX(0);
+        max-height: 100px;
+    }
+    to {
+        opacity: 0;
+        transform: translateX(100%);
+        max-height: 0;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+    }
+}
+
+/* Animación para las tarjetas al cargar */
+.card {
+    animation: cardFadeIn 0.6s ease-out;
+}
+
+@keyframes cardFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Animación escalonada para items de lista */
+.list-group-item {
+    animation-duration: 0.5s;
+    animation-fill-mode: both;
+}
+
+.list-group-item:nth-child(1) { animation-delay: 0.1s; }
+.list-group-item:nth-child(2) { animation-delay: 0.2s; }
+.list-group-item:nth-child(3) { animation-delay: 0.3s; }
+.list-group-item:nth-child(4) { animation-delay: 0.4s; }
+.list-group-item:nth-child(5) { animation-delay: 0.5s; }
+
+/* Transición suave para hover en botones */
+.btn {
+    transition: all 0.3s ease;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+}
+
 /* Responsive */
 @media (max-width: 768px) {
     .content-header {
@@ -363,4 +439,46 @@
     }
 }
 </style>
+
+<!-- JavaScript para animaciones -->
+<script>
+// Animación para elementos al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    // Aplicar animación fade-in a todos los elementos con la clase
+    const animatedElements = document.querySelectorAll('.fade-in');
+    animatedElements.forEach((element, index) => {
+        element.style.animationDelay = `${index * 0.1}s`;
+    });
+});
+
+// Función para animar eliminación de transacciones
+function animateRemoveTransaction(element) {
+    element.classList.add('slide-out');
+    setTimeout(() => {
+        element.remove();
+    }, 300);
+}
+
+// Ejemplo de uso para futuras implementaciones con AJAX
+function addNewTransaction(transactionData, container) {
+    const newElement = document.createElement('div');
+    newElement.className = 'list-group-item d-flex justify-content-between align-items-center fade-in';
+    newElement.innerHTML = `
+        <div>
+            <h6 class="mb-1">${transactionData.concepto}</h6>
+            <small class="text-muted">
+                ${transactionData.fecha} • 
+                <span class="badge" style="background-color: ${transactionData.color}; color: white;">
+                    ${transactionData.icono} ${transactionData.categoria}
+                </span>
+            </small>
+        </div>
+        <span class="badge ${transactionData.tipo === 'ingreso' ? 'bg-success' : 'bg-danger'} rounded-pill">
+            $${transactionData.monto}
+        </span>
+    `;
+    
+    container.prepend(newElement);
+}
+</script>
 {% endblock %}

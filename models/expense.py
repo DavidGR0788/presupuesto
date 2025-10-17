@@ -5,7 +5,7 @@ class ExpenseModel:
         self.db = Database()
         self.table = "gastos"
 
-    def create(self, usuario_id, concepto, monto, categoria_id, fecha, esencial=True, descripcion=None):
+    def create(self, usuario_id, concepto, monto, categoria_id, fecha, esencial=False, descripcion=None):
         """Crear nuevo gasto"""
         query = f"""
         INSERT INTO {self.table} (usuario_id, concepto, monto, categoria_id, fecha, esencial, descripcion)
