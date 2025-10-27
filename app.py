@@ -181,7 +181,7 @@ def create_app():
             queries = [
                 "SELECT default_character_set_name, default_collation_name FROM information_schema.SCHEMATA WHERE schema_name = 'railway'",
                 "SELECT table_name, table_collation FROM information_schema.tables WHERE table_schema = 'railway' AND table_name = 'categorias_gastos'",
-                "SELECT column_name, character_set_name, collation_name FROM information_schema.columns WHERE table_schema = 'railway' AND table_name = 'categorias_gastos' AND column_name IN ('nombre', 'descripcion')"
+                "SELECT column_name, character_set_name, collation_name FROM information_schema.columns WHERE table_schema = 'railway' AND table_name = 'categorias_gastos' AND column_name IN ('nombre', 'descripcion', 'icono')"
             ]
             
             results = []
@@ -206,7 +206,8 @@ def create_app():
                 "ALTER DATABASE `railway` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
                 "ALTER TABLE categorias_gastos CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
                 "ALTER TABLE categorias_gastos MODIFY nombre VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
-                "ALTER TABLE categorias_gastos MODIFY descripcion TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+                "ALTER TABLE categorias_gastos MODIFY descripcion TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
+                "ALTER TABLE categorias_gastos MODIFY icono VARCHAR(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
             ]
             
             results = []
@@ -217,68 +218,91 @@ def create_app():
                 except Exception as e:
                     results.append(f"❌ {cmd} - Error: {e}")
             
-            # Probar con emoji
-            test_query = "INSERT INTO categorias_gastos (nombre, descripcion) VALUES (%s, %s)"
-            db.execute_query(test_query, ('Test Emoji 🎉', 'Descripción con emoji ✅🚀'))
-            
             return "<br>".join(results)
             
         except Exception as e:
             return f"Error: {e}"
 
-    # ✅ RUTA CORREGIDA - ESTA SÍ CREA LAS CATEGORÍAS
+    # ✅ RUTA CORREGIDA - USA EL CAMPO icono CORRECTAMENTE
     @app.route('/fix-categorias-deporte-ropa')
     def fix_categorias_deporte_ropa():
-        """CREAR categorías Deporte y Ropa con emojis correctos"""
+        """CREAR categorías Deporte y Ropa con emojis en el campo ICONO"""
         try:
             db = Database()
             
-            results = ["<h1>🎯 CREANDO CATEGORÍAS NUEVAS CON EMOJIS</h1>"]
+            results = ["<h1>🎯 CREANDO CATEGORÍAS CON EMOJIS EN ICONO</h1>"]
             
             # 1. Primero ver qué categorías existen
             try:
-                all_categories = db.execute_query("SELECT id, nombre, descripcion FROM categorias_gastos ORDER BY id", fetch=True)
+                all_categories = db.execute_query("SELECT id, nombre, icono, color FROM categorias_gastos ORDER BY id", fetch=True)
                 results.append("<h3>🔍 CATEGORÍAS ACTUALES:</h3>")
                 if all_categories:
                     for cat in all_categories:
-                        results.append(f"- {cat['nombre']} (ID: {cat['id']})")
+                        results.append(f"- {cat['icono']} {cat['nombre']} (ID: {cat['id']}, Color: {cat['color']})")
                 else:
                     results.append("- No hay categorías")
             except Exception as e:
                 results.append(f"⚠️ Error viendo categorías: {e}")
             
-            # 2. CREAR LAS CATEGORÍAS DIRECTAMENTE
+            # 2. ELIMINAR categorías problemáticas
             try:
-                # Lista de categorías a CREAR
+                categorias_a_eliminar = ['Deporte', 'Ropa']
+                
+                for nombre in categorias_a_eliminar:
+                    try:
+                        delete_query = "DELETE FROM categorias_gastos WHERE nombre = %s"
+                        db.execute_query(delete_query, (nombre,))
+                        results.append(f"✅ Eliminada: {nombre}")
+                    except Exception as e:
+                        results.append(f"⚠️ No se pudo eliminar {nombre}: {e}")
+                        
+            except Exception as e:
+                results.append(f"❌ Error en eliminación: {e}")
+            
+            # 3. CREAR NUEVAS CATEGORÍAS CON EMOJIS EN ICONO
+            try:
+                # Lista de categorías a CREAR (nombre, descripcion, color, icono)
                 nuevas_categorias = [
-                    ('Deporte 🏋️‍♂️', 'Gastos en deportes y ejercicio'),
-                    ('Ropa 👕', 'Gastos en ropa y accesorios')
+                    ('Deporte', 'Gastos en deportes y ejercicio', '#ff6b6b', '🏋️‍♂️'),
+                    ('Ropa', 'Gastos en ropa y accesorios', '#4ecdc4', '👕')
                 ]
                 
-                for nombre, descripcion in nuevas_categorias:
+                for nombre, descripcion, color, icono in nuevas_categorias:
                     try:
-                        # INSERTAR directamente usando parámetros (más seguro)
-                        insert_query = "INSERT INTO categorias_gastos (nombre, descripcion) VALUES (%s, %s)"
-                        db.execute_query(insert_query, (nombre, descripcion))
-                        results.append(f"✅ CREADA: {nombre}")
+                        # Verificar si ya existe
+                        check_query = "SELECT id FROM categorias_gastos WHERE nombre = %s"
+                        existe = db.execute_query(check_query, (nombre,), fetch_one=True)
+                        
+                        if not existe:
+                            # INSERTAR con todos los campos incluyendo ICONO
+                            insert_query = """
+                                INSERT INTO categorias_gastos (nombre, descripcion, color, icono) 
+                                VALUES (%s, %s, %s, %s)
+                            """
+                            db.execute_query(insert_query, (nombre, descripcion, color, icono))
+                            results.append(f"✅ CREADA: {icono} {nombre}")
+                        else:
+                            # Si existe, actualizar solo el icono
+                            update_query = "UPDATE categorias_gastos SET icono = %s WHERE nombre = %s"
+                            db.execute_query(update_query, (icono, nombre))
+                            results.append(f"✅ ACTUALIZADA: {icono} {nombre}")
                     except Exception as e:
-                        results.append(f"⚠️ Error creando {nombre}: {e}")
+                        results.append(f"❌ Error con {nombre}: {e}")
                         
             except Exception as e:
                 results.append(f"❌ Error en creación: {e}")
             
-            # 3. Verificar que se crearon correctamente
+            # 4. Verificar que se crearon correctamente
             try:
-                categorias_creadas = db.execute_query(
-                    "SELECT id, nombre, descripcion FROM categorias_gastos WHERE nombre IN ('Deporte 🏋️‍♂️', 'Ropa 👕')", 
+                categorias_verificacion = db.execute_query(
+                    "SELECT id, nombre, icono, color FROM categorias_gastos WHERE nombre IN ('Deporte', 'Ropa')", 
                     fetch=True
                 )
                 
                 results.append("<h3>🎉 VERIFICACIÓN FINAL:</h3>")
-                if categorias_creadas:
-                    for cat in categorias_creadas:
-                        results.append(f"✅ {cat['nombre']} - ID: {cat['id']}")
-                        results.append(f"   Descripción: {cat['descripcion']}")
+                if categorias_verificacion:
+                    for cat in categorias_verificacion:
+                        results.append(f"✅ {cat['icono']} {cat['nombre']} - Color: {cat['color']}")
                 else:
                     results.append("❌ No se encontraron las categorías creadas")
                     
