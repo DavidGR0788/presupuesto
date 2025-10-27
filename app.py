@@ -145,7 +145,7 @@ def create_app():
     def health_check():
         return {'status': 'healthy', 'message': 'App funcionando', 'environment': 'railway' if is_railway else 'local', 'port': os.environ.get('PORT')}
     
-    # ✅ RUTAS PARA ARREGLAR EMOJIS (TEMPORALES) - AÑADE ESTO
+    # ✅ RUTAS PARA ARREGLAR EMOJIS (TEMPORALES)
     @app.route('/check-charset')
     def check_charset():
         """Verificar charset actual de la BD"""
@@ -199,6 +199,38 @@ def create_app():
             
         except Exception as e:
             return f"Error: {e}"
+
+    # ✅ NUEVA RUTA PARA ARREGLAR CATEGORÍAS ESPECÍFICAS
+    @app.route('/fix-categorias-deporte-ropa')
+    def fix_categorias_deporte_ropa():
+        """Arreglar específicamente las categorías Deporte y Ropa con emojis correctos"""
+        try:
+            db = Database()
+            
+            # Actualizar las categorías específicas con los emojis correctos
+            updates = [
+                "UPDATE categorias_gastos SET nombre = 'Deporte 🏋️‍♂️' WHERE nombre LIKE 'Deporte%' OR nombre LIKE '%?%'",
+                "UPDATE categorias_gastos SET nombre = 'Ropa 👕' WHERE nombre LIKE 'Ropa%' OR nombre LIKE '%?%'"
+            ]
+            
+            results = []
+            for update in updates:
+                try:
+                    db.execute_query(update)
+                    results.append(f"✅ {update}")
+                except Exception as e:
+                    results.append(f"❌ {update} - Error: {e}")
+            
+            # Verificar los cambios
+            check_query = "SELECT id, nombre FROM categorias_gastos WHERE nombre LIKE '%🏋️‍♂️%' OR nombre LIKE '%👕%'"
+            categorias_actualizadas = db.execute_query(check_query, fetch=True)
+            results.append(f"<h3>📋 Categorías actualizadas:</h3>")
+            results.append(str(categorias_actualizadas))
+            
+            return "<br>".join(results)
+            
+        except Exception as e:
+            return f"Error: {e}"
     
     # ✅ RUTA PRINCIPAL MEJORADA
     @app.route('/')
@@ -231,6 +263,7 @@ def create_app():
                     <li><a href="/health">/health</a> - Estado del servicio</li>
                     <li><a href="/check-charset">/check-charset</a> - Ver charset BD</li>
                     <li><a href="/fix-db-charset">/fix-db-charset</a> - Arreglar emojis</li>
+                    <li><a href="/fix-categorias-deporte-ropa">/fix-categorias-deporte-ropa</a> - Arreglar Deporte/Ropa</li>
                 </ul>
             </div>
         </body>
