@@ -4,7 +4,7 @@ import traceback
 import threading
 import time
 from flask import Flask, session
-from utils.database import Database  # ← AÑADE ESTE IMPORT
+from utils.database import Database
 
 # ✅ CONFIGURACIÓN OBLIGATORIA PARA RAILWAY
 os.environ['FLASK_APP'] = 'app.py'
@@ -200,37 +200,77 @@ def create_app():
         except Exception as e:
             return f"Error: {e}"
 
-    # ✅ NUEVA RUTA PARA ARREGLAR CATEGORÍAS ESPECÍFICAS
+    # ✅ RUTA CORREGIDA PARA ARREGLAR CATEGORÍAS ESPECÍFICAS
     @app.route('/fix-categorias-deporte-ropa')
     def fix_categorias_deporte_ropa():
         """Arreglar específicamente las categorías Deporte y Ropa con emojis correctos"""
         try:
             db = Database()
             
-            # Actualizar las categorías específicas con los emojis correctos
-            updates = [
-                "UPDATE categorias_gastos SET nombre = 'Deporte 🏋️‍♂️' WHERE nombre LIKE 'Deporte%' OR nombre LIKE '%?%'",
-                "UPDATE categorias_gastos SET nombre = 'Ropa 👕' WHERE nombre LIKE 'Ropa%' OR nombre LIKE '%?%'"
-            ]
-            
             results = []
-            for update in updates:
-                try:
-                    db.execute_query(update)
-                    results.append(f"✅ {update}")
-                except Exception as e:
-                    results.append(f"❌ {update} - Error: {e}")
             
-            # Verificar los cambios
-            check_query = "SELECT id, nombre FROM categorias_gastos WHERE nombre LIKE '%🏋️‍♂️%' OR nombre LIKE '%👕%'"
-            categorias_actualizadas = db.execute_query(check_query, fetch=True)
-            results.append(f"<h3>📋 Categorías actualizadas:</h3>")
-            results.append(str(categorias_actualizadas))
+            # SOLUCIÓN SEGURA: Primero ver qué categorías existen
+            try:
+                categorias_query = "SELECT id, nombre FROM categorias_gastos WHERE nombre LIKE '%?%' OR nombre LIKE 'Deporte%' OR nombre LIKE 'Ropa%'"
+                categorias_existentes = db.execute_query(categorias_query, fetch=True)
+                results.append("<h3>🔍 Categorías encontradas:</h3>")
+                if categorias_existentes:
+                    for cat in categorias_existentes:
+                        results.append(f"- ID {cat['id']}: {cat['nombre']}")
+                else:
+                    results.append("- No se encontraron categorías para actualizar")
+            except Exception as e:
+                results.append(f"❌ Error buscando categorías: {e}")
+            
+            # SOLUCIÓN: Eliminar las categorías problemáticas y crear nuevas
+            try:
+                # Eliminar categorías existentes con problemas
+                delete_queries = [
+                    "DELETE FROM categorias_gastos WHERE nombre = 'Deporte' OR nombre LIKE 'Deporte%?'",
+                    "DELETE FROM categorias_gastos WHERE nombre = 'Ropa' OR nombre LIKE 'Ropa%?'",
+                    "DELETE FROM categorias_gastos WHERE nombre LIKE 'Test Emoji%'"
+                ]
+                
+                for delete_query in delete_queries:
+                    try:
+                        db.execute_query(delete_query)
+                        results.append(f"✅ Eliminadas categorías problemáticas")
+                    except Exception as e:
+                        results.append(f"⚠️ No se pudieron eliminar algunas categorías: {e}")
+                
+                # Crear nuevas categorías con emojis correctos
+                insert_queries = [
+                    "INSERT INTO categorias_gastos (nombre, descripcion) VALUES ('Deporte 🏋️‍♂️', 'Gastos en deportes y ejercicio')",
+                    "INSERT INTO categorias_gastos (nombre, descripcion) VALUES ('Ropa 👕', 'Gastos en ropa y accesorios')"
+                ]
+                
+                for insert_query in insert_queries:
+                    try:
+                        db.execute_query(insert_query)
+                        results.append(f"✅ Categoría creada con emojis")
+                    except Exception as e:
+                        results.append(f"❌ Error creando categoría: {e}")
+                        
+            except Exception as e:
+                results.append(f"❌ Error en el proceso principal: {e}")
+            
+            # Verificar resultado final
+            try:
+                final_check = "SELECT id, nombre FROM categorias_gastos WHERE nombre LIKE '%🏋️‍♂️%' OR nombre LIKE '%👕%'"
+                categorias_finales = db.execute_query(final_check, fetch=True)
+                results.append("<h3>🎉 Resultado final:</h3>")
+                if categorias_finales:
+                    for cat in categorias_finales:
+                        results.append(f"✅ {cat['nombre']}")
+                else:
+                    results.append("❌ No se crearon las categorías con emojis")
+            except Exception as e:
+                results.append(f"❌ Error verificando resultado: {e}")
             
             return "<br>".join(results)
             
         except Exception as e:
-            return f"Error: {e}"
+            return f"Error general: {e}"
     
     # ✅ RUTA PRINCIPAL MEJORADA
     @app.route('/')
