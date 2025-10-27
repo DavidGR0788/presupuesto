@@ -200,72 +200,103 @@ def create_app():
         except Exception as e:
             return f"Error: {e}"
 
-    # ✅ RUTA CORREGIDA PARA ARREGLAR CATEGORÍAS ESPECÍFICAS
+    # ✅ RUTA CORREGIDA DEFINITIVA PARA ARREGLAR CATEGORÍAS
     @app.route('/fix-categorias-deporte-ropa')
     def fix_categorias_deporte_ropa():
         """Arreglar específicamente las categorías Deporte y Ropa con emojis correctos"""
         try:
             db = Database()
             
-            results = []
+            results = ["<h1>🔧 Arreglando Categorías Deporte y Ropa</h1>"]
             
-            # SOLUCIÓN SEGURA: Primero ver qué categorías existen
+            # 1. Primero ver todas las categorías para diagnóstico
             try:
-                categorias_query = "SELECT id, nombre FROM categorias_gastos WHERE nombre LIKE '%?%' OR nombre LIKE 'Deporte%' OR nombre LIKE 'Ropa%'"
-                categorias_existentes = db.execute_query(categorias_query, fetch=True)
-                results.append("<h3>🔍 Categorías encontradas:</h3>")
-                if categorias_existentes:
-                    for cat in categorias_existentes:
+                all_categories = db.execute_query("SELECT id, nombre FROM categorias_gastos ORDER BY id", fetch=True)
+                results.append("<h3>🔍 Todas las categorías actuales:</h3>")
+                if all_categories:
+                    for cat in all_categories:
                         results.append(f"- ID {cat['id']}: {cat['nombre']}")
                 else:
-                    results.append("- No se encontraron categorías para actualizar")
+                    results.append("- No hay categorías")
             except Exception as e:
-                results.append(f"❌ Error buscando categorías: {e}")
+                results.append(f"⚠️ Error viendo categorías: {e}")
             
-            # SOLUCIÓN: Eliminar las categorías problemáticas y crear nuevas
+            # 2. SOLUCIÓN SIMPLE Y DIRECTA - Eliminar por nombres exactos
             try:
-                # Eliminar categorías existentes con problemas
-                delete_queries = [
-                    "DELETE FROM categorias_gastos WHERE nombre = 'Deporte' OR nombre LIKE 'Deporte%?'",
-                    "DELETE FROM categorias_gastos WHERE nombre = 'Ropa' OR nombre LIKE 'Ropa%?'",
-                    "DELETE FROM categorias_gastos WHERE nombre LIKE 'Test Emoji%'"
+                # Lista de nombres exactos a eliminar
+                nombres_a_eliminar = [
+                    'Deporte',
+                    'Ropa', 
+                    'Test Emoji 🎉',
+                    'Deporte ?',
+                    'Ropa ?'
                 ]
                 
-                for delete_query in delete_queries:
+                for nombre in nombres_a_eliminar:
                     try:
+                        delete_query = f"DELETE FROM categorias_gastos WHERE nombre = '{nombre}'"
                         db.execute_query(delete_query)
-                        results.append(f"✅ Eliminadas categorías problemáticas")
+                        results.append(f"✅ Eliminada: '{nombre}'")
                     except Exception as e:
-                        results.append(f"⚠️ No se pudieron eliminar algunas categorías: {e}")
+                        results.append(f"⚠️ No se pudo eliminar '{nombre}': {e}")
                 
-                # Crear nuevas categorías con emojis correctos
-                insert_queries = [
-                    "INSERT INTO categorias_gastos (nombre, descripcion) VALUES ('Deporte 🏋️‍♂️', 'Gastos en deportes y ejercicio')",
-                    "INSERT INTO categorias_gastos (nombre, descripcion) VALUES ('Ropa 👕', 'Gastos en ropa y accesorios')"
+            except Exception as e:
+                results.append(f"❌ Error en eliminación: {e}")
+            
+            # 3. Crear nuevas categorías con emojis
+            try:
+                # Verificar si las categorías ya existen antes de crearlas
+                categorias_a_crear = [
+                    ('Deporte 🏋️‍♂️', 'Gastos en deportes y ejercicio'),
+                    ('Ropa 👕', 'Gastos en ropa y accesorios')
                 ]
                 
-                for insert_query in insert_queries:
+                for nombre, descripcion in categorias_a_crear:
                     try:
-                        db.execute_query(insert_query)
-                        results.append(f"✅ Categoría creada con emojis")
+                        # Verificar si ya existe
+                        check_query = f"SELECT id FROM categorias_gastos WHERE nombre = '{nombre}'"
+                        existe = db.execute_query(check_query, fetch_one=True)
+                        
+                        if not existe:
+                            insert_query = f"INSERT INTO categorias_gastos (nombre, descripcion) VALUES ('{nombre}', '{descripcion}')"
+                            db.execute_query(insert_query)
+                            results.append(f"✅ Creada: {nombre}")
+                        else:
+                            results.append(f"ℹ️ Ya existe: {nombre}")
                     except Exception as e:
-                        results.append(f"❌ Error creando categoría: {e}")
+                        results.append(f"❌ Error creando {nombre}: {e}")
                         
             except Exception as e:
-                results.append(f"❌ Error en el proceso principal: {e}")
+                results.append(f"❌ Error en creación: {e}")
             
-            # Verificar resultado final
+            # 4. Verificar resultado final
             try:
-                final_check = "SELECT id, nombre FROM categorias_gastos WHERE nombre LIKE '%🏋️‍♂️%' OR nombre LIKE '%👕%'"
-                categorias_finales = db.execute_query(final_check, fetch=True)
+                final_categories = db.execute_query("SELECT id, nombre FROM categorias_gastos ORDER BY id", fetch=True)
                 results.append("<h3>🎉 Resultado final:</h3>")
-                if categorias_finales:
-                    for cat in categorias_finales:
-                        results.append(f"✅ {cat['nombre']}")
+                if final_categories:
+                    for cat in final_categories:
+                        emoji_status = "✅" if "🏋️‍♂️" in cat['nombre'] or "👕" in cat['nombre'] else "📝"
+                        results.append(f"{emoji_status} {cat['nombre']}")
                 else:
-                    results.append("❌ No se crearon las categorías con emojis")
+                    results.append("❌ No hay categorías")
+                    
+                # Verificar específicamente las categorías con emojis
+                deporte_check = db.execute_query("SELECT id FROM categorias_gastos WHERE nombre = 'Deporte 🏋️‍♂️'", fetch_one=True)
+                ropa_check = db.execute_query("SELECT id FROM categorias_gastos WHERE nombre = 'Ropa 👕'", fetch_one=True)
+                
+                results.append("<h3>🔎 Verificación específica:</h3>")
+                if deporte_check:
+                    results.append("✅ 'Deporte 🏋️‍♂️' está en la base de datos")
+                else:
+                    results.append("❌ 'Deporte 🏋️‍♂️' NO está en la base de datos")
+                    
+                if ropa_check:
+                    results.append("✅ 'Ropa 👕' está en la base de datos")
+                else:
+                    results.append("❌ 'Ropa 👕' NO está en la base de datos")
+                    
             except Exception as e:
-                results.append(f"❌ Error verificando resultado: {e}")
+                results.append(f"❌ Error en verificación final: {e}")
             
             return "<br>".join(results)
             
