@@ -90,7 +90,7 @@ INSERT IGNORE INTO `categorias_gastos` (`id`, `nombre`, `descripcion`, `color`, 
 (6, 'Educación', 'Cursos, libros, material', '#560bad', '📚'),
 (7, 'Otros', 'Otros gastos varios', '#480ca8', '📦'),
 (8, 'Ropa', 'Gastos en vestimenta', '#b5179e', '👕'),
-(9, Deportes', 'Gastos en actividades deportivas', '#f3722c', '🏋️‍♂️');
+(9, 'Deportes', 'Gastos en actividades deportivas', '#f3722c', '🏋️‍♂️');
 
 -- Tabla: categorias_ingresos
 CREATE TABLE IF NOT EXISTS `categorias_ingresos` (

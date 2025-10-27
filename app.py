@@ -4,6 +4,7 @@ import traceback
 import threading
 import time
 from flask import Flask, session
+from utils.database import Database  # ← AÑADE ESTE IMPORT
 
 # ✅ CONFIGURACIÓN OBLIGATORIA PARA RAILWAY
 os.environ['FLASK_APP'] = 'app.py'
@@ -144,6 +145,61 @@ def create_app():
     def health_check():
         return {'status': 'healthy', 'message': 'App funcionando', 'environment': 'railway' if is_railway else 'local', 'port': os.environ.get('PORT')}
     
+    # ✅ RUTAS PARA ARREGLAR EMOJIS (TEMPORALES) - AÑADE ESTO
+    @app.route('/check-charset')
+    def check_charset():
+        """Verificar charset actual de la BD"""
+        try:
+            db = Database()
+            
+            queries = [
+                "SELECT default_character_set_name, default_collation_name FROM information_schema.SCHEMATA WHERE schema_name = 'railway'",
+                "SELECT table_name, table_collation FROM information_schema.tables WHERE table_schema = 'railway' AND table_name = 'categorias_gastos'",
+                "SELECT column_name, character_set_name, collation_name FROM information_schema.columns WHERE table_schema = 'railway' AND table_name = 'categorias_gastos' AND column_name IN ('nombre', 'descripcion')"
+            ]
+            
+            results = []
+            for query in queries:
+                result = db.execute_query(query, fetch=True)
+                results.append(f"<h3>Query: {query}</h3>")
+                results.append(str(result))
+            
+            return "<br>".join(results)
+            
+        except Exception as e:
+            return f"Error: {e}"
+
+    @app.route('/fix-db-charset')
+    def fix_db_charset():
+        """Ruta temporal para arreglar charset de la BD"""
+        try:
+            db = Database()
+            
+            # Comandos SQL para arreglar charset
+            commands = [
+                "ALTER DATABASE `railway` CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
+                "ALTER TABLE categorias_gastos CONVERT TO CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
+                "ALTER TABLE categorias_gastos MODIFY nombre VARCHAR(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci",
+                "ALTER TABLE categorias_gastos MODIFY descripcion TEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci"
+            ]
+            
+            results = []
+            for cmd in commands:
+                try:
+                    db.execute_query(cmd)
+                    results.append(f"✅ {cmd}")
+                except Exception as e:
+                    results.append(f"❌ {cmd} - Error: {e}")
+            
+            # Probar con emoji
+            test_query = "INSERT INTO categorias_gastos (nombre, descripcion) VALUES (%s, %s)"
+            db.execute_query(test_query, ('Test Emoji 🎉', 'Descripción con emoji ✅🚀'))
+            
+            return "<br>".join(results)
+            
+        except Exception as e:
+            return f"Error: {e}"
+    
     # ✅ RUTA PRINCIPAL MEJORADA
     @app.route('/')
     def home():
@@ -173,6 +229,8 @@ def create_app():
                 <ul>
                     <li><a href="/debug">/debug</a> - Información de diagnóstico</li>
                     <li><a href="/health">/health</a> - Estado del servicio</li>
+                    <li><a href="/check-charset">/check-charset</a> - Ver charset BD</li>
+                    <li><a href="/fix-db-charset">/fix-db-charset</a> - Arreglar emojis</li>
                 </ul>
             </div>
         </body>
